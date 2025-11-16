@@ -92,32 +92,32 @@ This task list guides the implementation of zournal.nvim based on PRD.md.
     - [x] 5.3.1 `apply_template(template_path, variables)` - Load template and substitute variables in one call
   - [x] 5.4 Define default template content fallbacks for each journal type (if user doesn't provide templates)
 
-- [ ] 6.0 Journal Commands (Daily/Weekly/Monthly/Inbox)
-  - [ ] 6.1 Implement `create_daily_journal()` in `lua/zournal/journal.lua`
-    - [ ] 6.1.1 Get current date
-    - [ ] 6.1.2 Format filename using `daily_format` from config
-    - [ ] 6.1.3 Build full path: `root_dir/filename`
-    - [ ] 6.1.4 Check if file exists; if not, create from template with `{{date}}` substitution
-    - [ ] 6.1.5 Open file in buffer
-  - [ ] 6.2 Implement `create_weekly_journal()`
-    - [ ] 6.2.1 Get current date and ISO week number
-    - [ ] 6.2.2 Format filename using `weekly_format` from config
-    - [ ] 6.2.3 Build full path: `root_dir/filename`
-    - [ ] 6.2.4 Check if file exists; if not, create from template with `{{date}}`, `{{week}}` substitution
-    - [ ] 6.2.5 Open file in buffer
-  - [ ] 6.3 Implement `create_monthly_journal()`
-    - [ ] 6.3.1 Get current year and month
-    - [ ] 6.3.2 Format filename using `monthly_format` from config
-    - [ ] 6.3.3 Build full path: `root_dir/filename`
-    - [ ] 6.3.4 Check if file exists; if not, create from template with `{{month}}`, `{{year}}` substitution
-    - [ ] 6.3.5 Open file in buffer
-  - [ ] 6.4 Implement `create_inbox_note()`
-    - [ ] 6.4.1 Prompt user for filename/title using `vim.ui.input()`
-    - [ ] 6.4.2 Sanitize filename (add `.md` if not present)
-    - [ ] 6.4.3 Build full path: `root_dir/inbox_dir/filename`
-    - [ ] 6.4.4 Ensure inbox directory exists
-    - [ ] 6.4.5 Create file from inbox template with `{{title}}` substitution
-    - [ ] 6.4.6 Open file in buffer
+- [x] 6.0 Journal Commands (Daily/Weekly/Monthly/Inbox)
+  - [x] 6.1 Implement `create_daily_journal()` in `lua/zournal/journal.lua`
+    - [x] 6.1.1 Get current date
+    - [x] 6.1.2 Format filename using `daily_format` from config
+    - [x] 6.1.3 Build full path: `root_dir/filename`
+    - [x] 6.1.4 Check if file exists; if not, create from template with `{{date}}` substitution
+    - [x] 6.1.5 Open file in buffer
+  - [x] 6.2 Implement `create_weekly_journal()`
+    - [x] 6.2.1 Get current date and ISO week number
+    - [x] 6.2.2 Format filename using `weekly_format` from config
+    - [x] 6.2.3 Build full path: `root_dir/filename`
+    - [x] 6.2.4 Check if file exists; if not, create from template with `{{date}}`, `{{week}}` substitution
+    - [x] 6.2.5 Open file in buffer
+  - [x] 6.3 Implement `create_monthly_journal()`
+    - [x] 6.3.1 Get current year and month
+    - [x] 6.3.2 Format filename using `monthly_format` from config
+    - [x] 6.3.3 Build full path: `root_dir/filename`
+    - [x] 6.3.4 Check if file exists; if not, create from template with `{{month}}`, `{{year}}` substitution
+    - [x] 6.3.5 Open file in buffer
+  - [x] 6.4 Implement `create_inbox_note()`
+    - [x] 6.4.1 Prompt user for filename/title using `vim.ui.input()`
+    - [x] 6.4.2 Sanitize filename (add `.md` if not present)
+    - [x] 6.4.3 Build full path: `root_dir/inbox_dir/filename`
+    - [x] 6.4.4 Ensure inbox directory exists
+    - [x] 6.4.5 Create file from inbox template with `{{title}}` substitution
+    - [x] 6.4.6 Open file in buffer
 
 - [ ] 7.0 Zettelkasten ID System
   - [ ] 7.1 Implement zid validation in `lua/zournal/zettelkasten.lua`
@@ -266,14 +266,14 @@ This task list guides the implementation of zournal.nvim based on PRD.md.
     - [ ] 14.2.1 Show broken links in picker with indicator (e.g., "[BROKEN]")
     - [ ] 14.2.2 Prevent opening non-existent files
 
-- [ ] 15.0 Jump to Date Functionality
-  - [ ] 15.1 Implement `jump_to_date(date_string)` in `lua/zournal/journal.lua`
-    - [ ] 15.1.1 Parse date_string to date object
-    - [ ] 15.1.2 Try to find daily journal for that date (using `daily_format`)
-    - [ ] 15.1.3 If not found, try weekly journal (using `weekly_format`)
-    - [ ] 15.1.4 If not found, try monthly journal (using `monthly_format`)
-    - [ ] 15.1.5 If file exists, open in buffer
-    - [ ] 15.1.6 If no journal found, show error message
+- [x] 15.0 Jump to Date Functionality
+  - [x] 15.1 Implement `jump_to_date(date_string)` in `lua/zournal/journal.lua`
+    - [x] 15.1.1 Parse date_string to date object
+    - [x] 15.1.2 Try to find daily journal for that date (using `daily_format`)
+    - [x] 15.1.3 If not found, try weekly journal (using `weekly_format`)
+    - [x] 15.1.4 If not found, try monthly journal (using `monthly_format`)
+    - [x] 15.1.5 If file exists, open in buffer
+    - [x] 15.1.6 If no journal found, show error message
   - [ ] 15.2 Create command `:ZournalJumpToDate` that accepts date argument
     - [ ] 15.2.1 Parse command args to extract date
     - [ ] 15.2.2 Call `jump_to_date()` with parsed date
