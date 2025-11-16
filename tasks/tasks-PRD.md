@@ -80,17 +80,17 @@ This task list guides the implementation of zournal.nvim based on PRD.md.
     - [x] 4.4.1 `get_zid(file_path)` - Extract `zid` field from frontmatter (returns nil if not present)
     - [x] 4.4.2 `set_zid(file_path, zid)` - Set `zid` field in frontmatter
 
-- [ ] 5.0 Template System
-  - [ ] 5.1 Implement template loading in `lua/zournal/template.lua`
-    - [ ] 5.1.1 `load_template(template_path)` - Read template file, return content
-    - [ ] 5.1.2 Handle missing template files gracefully (return empty string or basic default)
-  - [ ] 5.2 Implement variable substitution
-    - [ ] 5.2.1 `substitute_variables(template_content, variables)` - Replace `{{variable}}` with values
-    - [ ] 5.2.2 Support variables: `{{date}}`, `{{title}}`, `{{time}}`, `{{year}}`, `{{month}}`, `{{day}}`
-    - [ ] 5.2.3 Use string.gsub with pattern matching for replacement
-  - [ ] 5.3 Create template application function
-    - [ ] 5.3.1 `apply_template(template_path, variables)` - Load template and substitute variables in one call
-  - [ ] 5.4 Define default template content fallbacks for each journal type (if user doesn't provide templates)
+- [x] 5.0 Template System
+  - [x] 5.1 Implement template loading in `lua/zournal/template.lua`
+    - [x] 5.1.1 `load_template(template_path)` - Read template file, return content
+    - [x] 5.1.2 Handle missing template files gracefully (return empty string or basic default)
+  - [x] 5.2 Implement variable substitution
+    - [x] 5.2.1 `substitute_variables(template_content, variables)` - Replace `{{variable}}` with values
+    - [x] 5.2.2 Support variables: `{{date}}`, `{{title}}`, `{{time}}`, `{{year}}`, `{{month}}`, `{{day}}`
+    - [x] 5.2.3 Use string.gsub with pattern matching for replacement
+  - [x] 5.3 Create template application function
+    - [x] 5.3.1 `apply_template(template_path, variables)` - Load template and substitute variables in one call
+  - [x] 5.4 Define default template content fallbacks for each journal type (if user doesn't provide templates)
 
 - [ ] 6.0 Journal Commands (Daily/Weekly/Monthly/Inbox)
   - [ ] 6.1 Implement `create_daily_journal()` in `lua/zournal/journal.lua`
