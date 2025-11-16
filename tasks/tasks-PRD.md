@@ -119,28 +119,28 @@ This task list guides the implementation of zournal.nvim based on PRD.md.
     - [x] 6.4.5 Create file from inbox template with `{{title}}` substitution
     - [x] 6.4.6 Open file in buffer
 
-- [ ] 7.0 Zettelkasten ID System
-  - [ ] 7.1 Implement zid validation in `lua/zournal/zettelkasten.lua`
-    - [ ] 7.1.1 `is_valid_zid(zid)` - Check if zid matches pattern: number, then alternating char/number
-    - [ ] 7.1.2 Use Lua pattern matching: `^%d+[a-z]?%d*[a-z]?%d*...$` (simplified example)
-  - [ ] 7.2 Implement zid parsing functions
-    - [ ] 7.2.1 `get_parent_zid(zid)` - Remove last segment from zid (e.g., `1a3` → `1a`, `1a` → `1`)
-    - [ ] 7.2.2 Return nil if zid is already a root (single number)
-    - [ ] 7.2.3 `get_root_zid(zid)` - Extract root number (e.g., `1a3c5` → `1`)
-  - [ ] 7.3 Implement next zid generation
-    - [ ] 7.3.1 `get_next_child_zid(parent_zid, existing_children)` - Generate next child zid
-    - [ ] 7.3.2 If parent ends in number, append next letter (`1` → `1a`, `1a3` → `1a3a`)
-    - [ ] 7.3.3 If parent ends in letter, append next number (`1a` → `1a1`, `1a2a` → `1a2a1`)
-    - [ ] 7.3.4 Fill gaps in existing children (if `1a1` and `1a3` exist, return `1a2`)
-    - [ ] 7.3.5 `get_next_sibling_zid(zid, existing_siblings)` - Generate next sibling zid
-    - [ ] 7.3.6 If zid ends in letter, increment letter (`1a` → `1b`)
-    - [ ] 7.3.7 If zid ends in number, increment number (`1a3` → `1a4`)
-    - [ ] 7.3.8 Fill gaps in existing siblings
-  - [ ] 7.4 Implement relationship queries
-    - [ ] 7.4.1 `find_notes_by_zid_pattern(pattern)` - Search all files in root_dir for zid matching pattern
-    - [ ] 7.4.2 `get_children(parent_zid)` - Find all notes with zid starting with `parent_zid` and one more segment
-    - [ ] 7.4.3 `get_siblings(zid)` - Find all notes with same parent prefix but different last segment
-    - [ ] 7.4.4 `get_parent(zid)` - Find note with parent zid
+- [x] 7.0 Zettelkasten ID System
+  - [x] 7.1 Implement zid validation in `lua/zournal/zettelkasten.lua`
+    - [x] 7.1.1 `is_valid_zid(zid)` - Check if zid matches pattern: number, then alternating char/number
+    - [x] 7.1.2 Use Lua pattern matching: `^%d+[a-z]?%d*[a-z]?%d*...$` (simplified example)
+  - [x] 7.2 Implement zid parsing functions
+    - [x] 7.2.1 `get_parent_zid(zid)` - Remove last segment from zid (e.g., `1a3` → `1a`, `1a` → `1`)
+    - [x] 7.2.2 Return nil if zid is already a root (single number)
+    - [x] 7.2.3 `get_root_zid(zid)` - Extract root number (e.g., `1a3c5` → `1`)
+  - [x] 7.3 Implement next zid generation
+    - [x] 7.3.1 `get_next_child_zid(parent_zid, existing_children)` - Generate next child zid
+    - [x] 7.3.2 If parent ends in number, append next letter (`1` → `1a`, `1a3` → `1a3a`)
+    - [x] 7.3.3 If parent ends in letter, append next number (`1a` → `1a1`, `1a2a` → `1a2a1`)
+    - [x] 7.3.4 Fill gaps in existing children (if `1a1` and `1a3` exist, return `1a2`)
+    - [x] 7.3.5 `get_next_sibling_zid(zid, existing_siblings)` - Generate next sibling zid
+    - [x] 7.3.6 If zid ends in letter, increment letter (`1a` → `1b`)
+    - [x] 7.3.7 If zid ends in number, increment number (`1a3` → `1a4`)
+    - [x] 7.3.8 Fill gaps in existing siblings
+  - [x] 7.4 Implement relationship queries
+    - [x] 7.4.1 `find_notes_by_zid_pattern(pattern)` - Search all files in root_dir for zid matching pattern
+    - [x] 7.4.2 `get_children(parent_zid)` - Find all notes with zid starting with `parent_zid` and one more segment
+    - [x] 7.4.3 `get_siblings(zid)` - Find all notes with same parent prefix but different last segment
+    - [x] 7.4.4 `get_parent(zid)` - Find note with parent zid
 
 - [ ] 8.0 Zettelkasten Note Creation (Child/Sibling/Parent)
   - [ ] 8.1 Implement `create_child_note()` in `lua/zournal/zettelkasten.lua`
