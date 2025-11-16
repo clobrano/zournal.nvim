@@ -64,21 +64,21 @@ This task list guides the implementation of zournal.nvim based on PRD.md.
     - [x] 3.4.2 `get_visual_selection()` - Get currently selected text in visual mode
     - [x] 3.4.3 `replace_visual_selection(replacement)` - Replace visual selection with text
 
-- [ ] 4.0 YAML Frontmatter Management
-  - [ ] 4.1 Implement frontmatter parsing in `lua/zournal/frontmatter.lua`
-    - [ ] 4.1.1 `parse_frontmatter(content)` - Extract YAML frontmatter from file content
-    - [ ] 4.1.2 Return table with `frontmatter` (parsed as Lua table) and `body` (rest of content)
-    - [ ] 4.1.3 Handle files without frontmatter (return empty table for frontmatter, full content as body)
-  - [ ] 4.2 Implement frontmatter serialization
-    - [ ] 4.2.1 `serialize_frontmatter(data)` - Convert Lua table to YAML string
-    - [ ] 4.2.2 Wrap in `---` delimiters
-  - [ ] 4.3 Implement frontmatter update function
-    - [ ] 4.3.1 `update_frontmatter(file_path, updates)` - Read file, update frontmatter fields, write back
-    - [ ] 4.3.2 Preserve body content exactly
-    - [ ] 4.3.3 Create frontmatter section if file doesn't have one
-  - [ ] 4.4 Implement frontmatter getter functions
-    - [ ] 4.4.1 `get_zid(file_path)` - Extract `zid` field from frontmatter (returns nil if not present)
-    - [ ] 4.4.2 `set_zid(file_path, zid)` - Set `zid` field in frontmatter
+- [x] 4.0 YAML Frontmatter Management
+  - [x] 4.1 Implement frontmatter parsing in `lua/zournal/frontmatter.lua`
+    - [x] 4.1.1 `parse_frontmatter(content)` - Extract YAML frontmatter from file content
+    - [x] 4.1.2 Return table with `frontmatter` (parsed as Lua table) and `body` (rest of content)
+    - [x] 4.1.3 Handle files without frontmatter (return empty table for frontmatter, full content as body)
+  - [x] 4.2 Implement frontmatter serialization
+    - [x] 4.2.1 `serialize_frontmatter(data)` - Convert Lua table to YAML string
+    - [x] 4.2.2 Wrap in `---` delimiters
+  - [x] 4.3 Implement frontmatter update function
+    - [x] 4.3.1 `update_frontmatter(file_path, updates)` - Read file, update frontmatter fields, write back
+    - [x] 4.3.2 Preserve body content exactly
+    - [x] 4.3.3 Create frontmatter section if file doesn't have one
+  - [x] 4.4 Implement frontmatter getter functions
+    - [x] 4.4.1 `get_zid(file_path)` - Extract `zid` field from frontmatter (returns nil if not present)
+    - [x] 4.4.2 `set_zid(file_path, zid)` - Set `zid` field in frontmatter
 
 - [ ] 5.0 Template System
   - [ ] 5.1 Implement template loading in `lua/zournal/template.lua`
