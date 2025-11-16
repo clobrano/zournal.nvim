@@ -26,23 +26,23 @@ This task list guides the implementation of zournal.nvim based on PRD.md.
 
 ## Tasks
 
-- [ ] 1.0 Project Setup and Infrastructure
+- [x] 1.0 Project Setup and Infrastructure
   - [x] 1.1 Create standard Neovim plugin directory structure (`lua/zournal/`, `plugin/`, `lua/zournal/telescope/`)
   - [x] 1.2 Create placeholder files for all main modules listed in Relevant Files section
   - [x] 1.3 Set up basic module exports in `lua/zournal/init.lua`
   - [x] 1.4 Verify plugin loads correctly in Neovim (no errors on startup)
 
-- [ ] 2.0 Configuration System
-  - [ ] 2.1 Define default configuration values in `lua/zournal/config.lua`
-    - [ ] 2.1.1 Default `root_dir = "~/journal/"`
-    - [ ] 2.1.2 Default filename formats (`daily_format`, `weekly_format`, `monthly_format`)
-    - [ ] 2.1.3 Default template paths (empty strings if not provided)
-    - [ ] 2.1.4 Default `inbox_dir = "Resources/"`
-    - [ ] 2.1.5 Default concealment symbols (`tag_symbol = "📌"`, `reference_symbol = "→📌"`)
-  - [ ] 2.2 Implement `setup()` function in `lua/zournal/init.lua` that accepts user config table
-  - [ ] 2.3 Merge user config with defaults using Lua table merging
-  - [ ] 2.4 Expose config getter function for other modules to access configuration
-  - [ ] 2.5 Expand tilde (`~`) in paths to absolute home directory path
+- [x] 2.0 Configuration System
+  - [x] 2.1 Define default configuration values in `lua/zournal/config.lua`
+    - [x] 2.1.1 Default `root_dir = "~/journal/"`
+    - [x] 2.1.2 Default filename formats (`daily_format`, `weekly_format`, `monthly_format`)
+    - [x] 2.1.3 Default template paths (empty strings if not provided)
+    - [x] 2.1.4 Default `inbox_dir = "Resources/"`
+    - [x] 2.1.5 Default concealment symbols (`tag_symbol = "📌"`, `reference_symbol = "→📌"`)
+  - [x] 2.2 Implement `setup()` function in `lua/zournal/init.lua` that accepts user config table
+  - [x] 2.3 Merge user config with defaults using Lua table merging
+  - [x] 2.4 Expose config getter function for other modules to access configuration
+  - [x] 2.5 Expand tilde (`~`) in paths to absolute home directory path
 
 - [ ] 3.0 Core Utilities and Helper Functions
   - [ ] 3.1 Create file operation utilities in `lua/zournal/utils.lua` using Plenary
