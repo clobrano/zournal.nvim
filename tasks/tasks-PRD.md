@@ -1,0 +1,319 @@
+# Task List for zournal.nvim
+
+This task list guides the implementation of zournal.nvim based on PRD.md.
+
+## Relevant Files
+
+- `lua/zournal/init.lua` - Main plugin setup and configuration
+- `lua/zournal/config.lua` - Configuration management and defaults
+- `lua/zournal/journal.lua` - Daily/weekly/monthly journal commands
+- `lua/zournal/zettelkasten.lua` - Zettelkasten ID system, child/sibling/parent logic
+- `lua/zournal/tags.lua` - Line tagging with UUID management
+- `lua/zournal/links.lua` - Link parsing, resolution, and automatic renaming
+- `lua/zournal/utils.lua` - Shared utility functions (file operations, date formatting, etc.)
+- `lua/zournal/frontmatter.lua` - YAML frontmatter parsing and manipulation
+- `lua/zournal/template.lua` - Template loading and variable substitution
+- `lua/zournal/telescope/relations.lua` - Telescope picker for Zettelkasten relationships
+- `lua/zournal/telescope/links.lua` - Telescope picker for link navigation
+- `plugin/zournal.vim` - Command definitions (`:Zournal*` commands)
+- `README.md` - Plugin documentation and usage guide
+
+### Notes
+
+- This is a Neovim plugin written in Lua, so standard unit testing frameworks for Lua (like busted) could be used, but are not required for v1.0
+- Plugin development can be tested by adding the plugin directory to Neovim's runtimepath and reloading with `:source` or restarting Neovim
+- Dependencies: Telescope, Plenary, Treesitter (assumed to be available in user's Neovim setup)
+
+## Tasks
+
+- [ ] 1.0 Project Setup and Infrastructure
+  - [x] 1.1 Create standard Neovim plugin directory structure (`lua/zournal/`, `plugin/`, `lua/zournal/telescope/`)
+  - [x] 1.2 Create placeholder files for all main modules listed in Relevant Files section
+  - [x] 1.3 Set up basic module exports in `lua/zournal/init.lua`
+  - [x] 1.4 Verify plugin loads correctly in Neovim (no errors on startup)
+
+- [ ] 2.0 Configuration System
+  - [ ] 2.1 Define default configuration values in `lua/zournal/config.lua`
+    - [ ] 2.1.1 Default `root_dir = "~/journal/"`
+    - [ ] 2.1.2 Default filename formats (`daily_format`, `weekly_format`, `monthly_format`)
+    - [ ] 2.1.3 Default template paths (empty strings if not provided)
+    - [ ] 2.1.4 Default `inbox_dir = "Resources/"`
+    - [ ] 2.1.5 Default concealment symbols (`tag_symbol = "📌"`, `reference_symbol = "→📌"`)
+  - [ ] 2.2 Implement `setup()` function in `lua/zournal/init.lua` that accepts user config table
+  - [ ] 2.3 Merge user config with defaults using Lua table merging
+  - [ ] 2.4 Expose config getter function for other modules to access configuration
+  - [ ] 2.5 Expand tilde (`~`) in paths to absolute home directory path
+
+- [ ] 3.0 Core Utilities and Helper Functions
+  - [ ] 3.1 Create file operation utilities in `lua/zournal/utils.lua` using Plenary
+    - [ ] 3.1.1 `file_exists(path)` - Check if file exists
+    - [ ] 3.1.2 `ensure_dir(path)` - Create directory if it doesn't exist
+    - [ ] 3.1.3 `read_file(path)` - Read entire file contents
+    - [ ] 3.1.4 `write_file(path, content)` - Write content to file
+    - [ ] 3.1.5 `find_files_with_pattern(dir, pattern)` - Find files matching pattern
+  - [ ] 3.2 Create date formatting utilities
+    - [ ] 3.2.1 `format_date(format_string, date)` - Format date using strftime-like patterns
+    - [ ] 3.2.2 `get_iso_week(date)` - Get ISO week number for a date
+    - [ ] 3.2.3 `parse_date(date_string)` - Parse date string to date object
+  - [ ] 3.3 Create path utilities
+    - [ ] 3.3.1 `join_path(...)` - Join path components (use Plenary's path module)
+    - [ ] 3.3.2 `expand_path(path)` - Expand `~` and environment variables
+    - [ ] 3.3.3 `get_filename_without_ext(path)` - Extract filename without extension
+  - [ ] 3.4 Create buffer/window utilities
+    - [ ] 3.4.1 `open_file_in_buffer(path)` - Open file in current or new buffer
+    - [ ] 3.4.2 `get_visual_selection()` - Get currently selected text in visual mode
+    - [ ] 3.4.3 `replace_visual_selection(replacement)` - Replace visual selection with text
+
+- [ ] 4.0 YAML Frontmatter Management
+  - [ ] 4.1 Implement frontmatter parsing in `lua/zournal/frontmatter.lua`
+    - [ ] 4.1.1 `parse_frontmatter(content)` - Extract YAML frontmatter from file content
+    - [ ] 4.1.2 Return table with `frontmatter` (parsed as Lua table) and `body` (rest of content)
+    - [ ] 4.1.3 Handle files without frontmatter (return empty table for frontmatter, full content as body)
+  - [ ] 4.2 Implement frontmatter serialization
+    - [ ] 4.2.1 `serialize_frontmatter(data)` - Convert Lua table to YAML string
+    - [ ] 4.2.2 Wrap in `---` delimiters
+  - [ ] 4.3 Implement frontmatter update function
+    - [ ] 4.3.1 `update_frontmatter(file_path, updates)` - Read file, update frontmatter fields, write back
+    - [ ] 4.3.2 Preserve body content exactly
+    - [ ] 4.3.3 Create frontmatter section if file doesn't have one
+  - [ ] 4.4 Implement frontmatter getter functions
+    - [ ] 4.4.1 `get_zid(file_path)` - Extract `zid` field from frontmatter (returns nil if not present)
+    - [ ] 4.4.2 `set_zid(file_path, zid)` - Set `zid` field in frontmatter
+
+- [ ] 5.0 Template System
+  - [ ] 5.1 Implement template loading in `lua/zournal/template.lua`
+    - [ ] 5.1.1 `load_template(template_path)` - Read template file, return content
+    - [ ] 5.1.2 Handle missing template files gracefully (return empty string or basic default)
+  - [ ] 5.2 Implement variable substitution
+    - [ ] 5.2.1 `substitute_variables(template_content, variables)` - Replace `{{variable}}` with values
+    - [ ] 5.2.2 Support variables: `{{date}}`, `{{title}}`, `{{time}}`, `{{year}}`, `{{month}}`, `{{day}}`
+    - [ ] 5.2.3 Use string.gsub with pattern matching for replacement
+  - [ ] 5.3 Create template application function
+    - [ ] 5.3.1 `apply_template(template_path, variables)` - Load template and substitute variables in one call
+  - [ ] 5.4 Define default template content fallbacks for each journal type (if user doesn't provide templates)
+
+- [ ] 6.0 Journal Commands (Daily/Weekly/Monthly/Inbox)
+  - [ ] 6.1 Implement `create_daily_journal()` in `lua/zournal/journal.lua`
+    - [ ] 6.1.1 Get current date
+    - [ ] 6.1.2 Format filename using `daily_format` from config
+    - [ ] 6.1.3 Build full path: `root_dir/filename`
+    - [ ] 6.1.4 Check if file exists; if not, create from template with `{{date}}` substitution
+    - [ ] 6.1.5 Open file in buffer
+  - [ ] 6.2 Implement `create_weekly_journal()`
+    - [ ] 6.2.1 Get current date and ISO week number
+    - [ ] 6.2.2 Format filename using `weekly_format` from config
+    - [ ] 6.2.3 Build full path: `root_dir/filename`
+    - [ ] 6.2.4 Check if file exists; if not, create from template with `{{date}}`, `{{week}}` substitution
+    - [ ] 6.2.5 Open file in buffer
+  - [ ] 6.3 Implement `create_monthly_journal()`
+    - [ ] 6.3.1 Get current year and month
+    - [ ] 6.3.2 Format filename using `monthly_format` from config
+    - [ ] 6.3.3 Build full path: `root_dir/filename`
+    - [ ] 6.3.4 Check if file exists; if not, create from template with `{{month}}`, `{{year}}` substitution
+    - [ ] 6.3.5 Open file in buffer
+  - [ ] 6.4 Implement `create_inbox_note()`
+    - [ ] 6.4.1 Prompt user for filename/title using `vim.ui.input()`
+    - [ ] 6.4.2 Sanitize filename (add `.md` if not present)
+    - [ ] 6.4.3 Build full path: `root_dir/inbox_dir/filename`
+    - [ ] 6.4.4 Ensure inbox directory exists
+    - [ ] 6.4.5 Create file from inbox template with `{{title}}` substitution
+    - [ ] 6.4.6 Open file in buffer
+
+- [ ] 7.0 Zettelkasten ID System
+  - [ ] 7.1 Implement zid validation in `lua/zournal/zettelkasten.lua`
+    - [ ] 7.1.1 `is_valid_zid(zid)` - Check if zid matches pattern: number, then alternating char/number
+    - [ ] 7.1.2 Use Lua pattern matching: `^%d+[a-z]?%d*[a-z]?%d*...$` (simplified example)
+  - [ ] 7.2 Implement zid parsing functions
+    - [ ] 7.2.1 `get_parent_zid(zid)` - Remove last segment from zid (e.g., `1a3` → `1a`, `1a` → `1`)
+    - [ ] 7.2.2 Return nil if zid is already a root (single number)
+    - [ ] 7.2.3 `get_root_zid(zid)` - Extract root number (e.g., `1a3c5` → `1`)
+  - [ ] 7.3 Implement next zid generation
+    - [ ] 7.3.1 `get_next_child_zid(parent_zid, existing_children)` - Generate next child zid
+    - [ ] 7.3.2 If parent ends in number, append next letter (`1` → `1a`, `1a3` → `1a3a`)
+    - [ ] 7.3.3 If parent ends in letter, append next number (`1a` → `1a1`, `1a2a` → `1a2a1`)
+    - [ ] 7.3.4 Fill gaps in existing children (if `1a1` and `1a3` exist, return `1a2`)
+    - [ ] 7.3.5 `get_next_sibling_zid(zid, existing_siblings)` - Generate next sibling zid
+    - [ ] 7.3.6 If zid ends in letter, increment letter (`1a` → `1b`)
+    - [ ] 7.3.7 If zid ends in number, increment number (`1a3` → `1a4`)
+    - [ ] 7.3.8 Fill gaps in existing siblings
+  - [ ] 7.4 Implement relationship queries
+    - [ ] 7.4.1 `find_notes_by_zid_pattern(pattern)` - Search all files in root_dir for zid matching pattern
+    - [ ] 7.4.2 `get_children(parent_zid)` - Find all notes with zid starting with `parent_zid` and one more segment
+    - [ ] 7.4.3 `get_siblings(zid)` - Find all notes with same parent prefix but different last segment
+    - [ ] 7.4.4 `get_parent(zid)` - Find note with parent zid
+
+- [ ] 8.0 Zettelkasten Note Creation (Child/Sibling/Parent)
+  - [ ] 8.1 Implement `create_child_note()` in `lua/zournal/zettelkasten.lua`
+    - [ ] 8.1.1 Get zid from current file's frontmatter (error if missing)
+    - [ ] 8.1.2 Find all existing children of current zid
+    - [ ] 8.1.3 Generate next child zid (filling gaps)
+    - [ ] 8.1.4 Prompt user for filename/title
+    - [ ] 8.1.5 Check if visual selection exists
+    - [ ] 8.1.6 If visual selection: extract selected text, prepare WikiLink replacement
+    - [ ] 8.1.7 Create new file with frontmatter: `zid` (new child zid), `created` (current date)
+    - [ ] 8.1.8 If visual selection: write selected text to new file, replace selection with `[[filename]]`
+    - [ ] 8.1.9 Open new file in buffer
+  - [ ] 8.2 Implement `create_sibling_note()`
+    - [ ] 8.2.1 Get zid from current file's frontmatter (error if missing)
+    - [ ] 8.2.2 Find all existing siblings of current zid
+    - [ ] 8.2.3 Generate next sibling zid (filling gaps)
+    - [ ] 8.2.4 Prompt user for filename/title
+    - [ ] 8.2.5 Check if visual selection exists
+    - [ ] 8.2.6 If visual selection: extract selected text, prepare WikiLink replacement
+    - [ ] 8.2.7 Create new file with frontmatter: `zid` (new sibling zid), `created` (current date)
+    - [ ] 8.2.8 If visual selection: write selected text to new file, replace selection with `[[filename]]`
+    - [ ] 8.2.9 Open new file in buffer
+  - [ ] 8.3 Implement `add_parent_relationship()`
+    - [ ] 8.3.1 Prompt user for parent note filename
+    - [ ] 8.3.2 Search for parent note in root_dir
+    - [ ] 8.3.3 Get parent's zid from frontmatter (error if missing)
+    - [ ] 8.3.4 Find all existing children of parent
+    - [ ] 8.3.5 Generate next child zid for current note
+    - [ ] 8.3.6 Update current file's frontmatter with new zid
+  - [ ] 8.4 Error handling for missing zid
+    - [ ] 8.4.1 Display helpful error message when zid is required but missing
+    - [ ] 8.4.2 Explain how to manually add zid to frontmatter
+
+- [ ] 9.0 Line Tagging System with UUID
+  - [ ] 9.1 Implement UUID generation in `lua/zournal/tags.lua`
+    - [ ] 9.1.1 `generate_uuid()` - Call system `uuidgen` command or use Lua uuid library
+    - [ ] 9.1.2 **CRITICAL**: Prepend `z` to UUID for Neovim tag compatibility
+    - [ ] 9.1.3 Return formatted tag: `#z<uuid>` (e.g., `#za3f9b2c1-4d5e-6f7a-8b9c-0d1e2f3a4b5c`)
+  - [ ] 9.2 Implement `tag_current_line()`
+    - [ ] 9.2.1 Get current line content
+    - [ ] 9.2.2 Generate new UUID tag
+    - [ ] 9.2.3 Append tag to end of line (with space separator)
+    - [ ] 9.2.4 Update line in buffer
+  - [ ] 9.3 Implement `copy_tag_from_line()`
+    - [ ] 9.3.1 Get current line content
+    - [ ] 9.3.2 Parse line to find tag pattern `#z[0-9a-f-]+`
+    - [ ] 9.3.3 Extract UUID tag (error if not found)
+    - [ ] 9.3.4 Copy tag to system clipboard using `vim.fn.setreg('+', tag)`
+    - [ ] 9.3.5 Show confirmation message to user
+
+- [ ] 10.0 Tag Concealment (Original vs Reference)
+  - [ ] 10.1 Implement concealment syntax in `lua/zournal/tags.lua`
+    - [ ] 10.1.1 Create Neovim syntax highlighting rules for tag concealment
+    - [ ] 10.1.2 Define syntax pattern for original tags: `#z[0-9a-f-]+` at end of line
+    - [ ] 10.1.3 Conceal original tags with `tag_symbol` from config (default: `📌`)
+    - [ ] 10.1.4 Define syntax pattern for reference tags: `#z[0-9a-f-]+` NOT at end of line (heuristic)
+    - [ ] 10.1.5 Conceal reference tags with `reference_symbol` from config (default: `→📌`)
+  - [ ] 10.2 Set up concealment autocommand
+    - [ ] 10.2.1 Apply concealment rules to markdown files in journal directory
+    - [ ] 10.2.2 Use `vim.api.nvim_set_hl()` to define highlight groups
+    - [ ] 10.2.3 Ensure concealment respects user's `conceallevel` setting
+  - [ ] 10.3 NOTE: Differentiating original vs reference may require heuristic (position on line, context)
+    - [ ] 10.3.1 Alternative: Always conceal as `📌`, let user context determine if it's original or reference
+    - [ ] 10.3.2 Decision: Use simpler approach unless PRD strictly requires differentiation
+
+- [ ] 11.0 Link System and Navigation
+  - [ ] 11.1 Implement link parsing in `lua/zournal/links.lua`
+    - [ ] 11.1.1 `find_wikilinks(content)` - Parse content for `[[...]]` patterns, return list of link targets
+    - [ ] 11.1.2 `find_markdown_links(content)` - Parse content for `[text](path)` patterns, return list of paths
+    - [ ] 11.1.3 `find_all_links(content)` - Combine WikiLinks and Markdown links
+  - [ ] 11.2 Implement link resolution
+    - [ ] 11.2.1 `resolve_link(link_text, current_file_dir)` - Convert link text to absolute file path
+    - [ ] 11.2.2 For WikiLinks: search in root_dir for matching filename (with or without `.md`)
+    - [ ] 11.2.3 For Markdown links: resolve relative paths from current file location
+  - [ ] 11.3 Implement link following (integrate with Neovim's `gf` or custom command)
+    - [ ] 11.3.1 Get link under cursor
+    - [ ] 11.3.2 Resolve link to file path
+    - [ ] 11.3.3 Open file in buffer
+
+- [ ] 12.0 Automatic Link Renaming on File Rename
+  - [ ] 12.1 Implement file rename detection in `lua/zournal/links.lua`
+    - [ ] 12.1.1 Create autocommand or API hook for `BufFilePost` or similar rename event
+    - [ ] 12.1.2 Detect old and new filenames
+  - [ ] 12.2 Implement link update logic
+    - [ ] 12.2.1 `update_links_in_file(file_path, old_name, new_name)` - Find and replace all occurrences
+    - [ ] 12.2.2 Handle WikiLinks: `[[old_name]]` → `[[new_name]]` (with or without `.md`)
+    - [ ] 12.2.3 Handle Markdown links: `[text](path/old_name.md)` → `[text](path/new_name.md)`
+  - [ ] 12.3 Implement batch update across journal
+    - [ ] 12.3.1 `update_all_links(old_name, new_name)` - Find all files in `root_dir`
+    - [ ] 12.3.2 Call `update_links_in_file()` for each file
+    - [ ] 12.3.3 Show progress or summary to user
+  - [ ] 12.4 Register rename hook
+    - [ ] 12.4.1 Listen for file rename events in Neovim
+    - [ ] 12.4.2 Trigger `update_all_links()` when file in `root_dir` is renamed
+
+- [ ] 13.0 Telescope Integration - Zettelkasten Relations
+  - [ ] 13.1 Implement relations picker in `lua/zournal/telescope/relations.lua`
+    - [ ] 13.1.1 Get current file's zid
+    - [ ] 13.1.2 Find parent, siblings, and children using zettelkasten module
+    - [ ] 13.1.3 Build Telescope picker entries:
+      - [ ] 13.1.3.1 Entry display format: `[Relationship Type] Filename - First line preview`
+      - [ ] 13.1.3.2 Relationship type: "Parent", "Sibling", "Child"
+      - [ ] 13.1.3.3 Extract first line of content for preview
+    - [ ] 13.1.4 Configure Telescope picker with full preview pane
+    - [ ] 13.1.5 On selection, open target file in buffer
+  - [ ] 13.2 Handle edge cases
+    - [ ] 13.2.1 No parent (root note): Show message or exclude from picker
+    - [ ] 13.2.2 No siblings: Show only parent and children
+    - [ ] 13.2.3 No children: Show only parent and siblings
+    - [ ] 13.2.4 File without zid: Show helpful error
+
+- [ ] 14.0 Telescope Integration - Link Navigation
+  - [ ] 14.1 Implement link picker in `lua/zournal/telescope/links.lua`
+    - [ ] 14.1.1 Get current file content
+    - [ ] 14.1.2 Find all links (WikiLinks + Markdown links) using link parsing module
+    - [ ] 14.1.3 Resolve each link to file path
+    - [ ] 14.1.4 Build Telescope picker entries:
+      - [ ] 14.1.4.1 Entry display format: `Link text → Target filename - First line preview`
+      - [ ] 14.1.4.2 Extract first line of target file for preview
+    - [ ] 14.1.5 Configure Telescope picker with full preview pane
+    - [ ] 14.1.6 On selection, open target file in buffer (optionally jump to line if tag reference)
+  - [ ] 14.2 Handle broken links
+    - [ ] 14.2.1 Show broken links in picker with indicator (e.g., "[BROKEN]")
+    - [ ] 14.2.2 Prevent opening non-existent files
+
+- [ ] 15.0 Jump to Date Functionality
+  - [ ] 15.1 Implement `jump_to_date(date_string)` in `lua/zournal/journal.lua`
+    - [ ] 15.1.1 Parse date_string to date object
+    - [ ] 15.1.2 Try to find daily journal for that date (using `daily_format`)
+    - [ ] 15.1.3 If not found, try weekly journal (using `weekly_format`)
+    - [ ] 15.1.4 If not found, try monthly journal (using `monthly_format`)
+    - [ ] 15.1.5 If file exists, open in buffer
+    - [ ] 15.1.6 If no journal found, show error message
+  - [ ] 15.2 Create command `:ZournalJumpToDate` that accepts date argument
+    - [ ] 15.2.1 Parse command args to extract date
+    - [ ] 15.2.2 Call `jump_to_date()` with parsed date
+  - [ ] 15.3 Optionally create date picker using Telescope or vim.ui.input
+
+- [ ] 16.0 Command Registration
+  - [ ] 16.1 Create `plugin/zournal.vim` with all command definitions
+    - [ ] 16.1.1 `:ZournalDailyJournal` → calls `require('zournal.journal').create_daily_journal()`
+    - [ ] 16.1.2 `:ZournalWeeklyJournal` → calls `require('zournal.journal').create_weekly_journal()`
+    - [ ] 16.1.3 `:ZournalMonthlyJournal` → calls `require('zournal.journal').create_monthly_journal()`
+    - [ ] 16.1.4 `:ZournalInbox` → calls `require('zournal.journal').create_inbox_note()`
+    - [ ] 16.1.5 `:ZournalNewChild` → calls `require('zournal.zettelkasten').create_child_note()`
+    - [ ] 16.1.6 `:ZournalNewSibling` → calls `require('zournal.zettelkasten').create_sibling_note()`
+    - [ ] 16.1.7 `:ZournalAddParent` → calls `require('zournal.zettelkasten').add_parent_relationship()`
+    - [ ] 16.1.8 `:ZournalRelations` → calls `require('zournal.telescope.relations').pick_relations()`
+    - [ ] 16.1.9 `:ZournalTagLine` → calls `require('zournal.tags').tag_current_line()`
+    - [ ] 16.1.10 `:ZournalCopyTag` → calls `require('zournal.tags').copy_tag_from_line()`
+    - [ ] 16.1.11 `:ZournalJumpToDate` → calls `require('zournal.journal').jump_to_date()` with args
+    - [ ] 16.1.12 `:ZournalLinks` (optional) → calls `require('zournal.telescope.links').pick_links()`
+  - [ ] 16.2 Use `vim.api.nvim_create_user_command()` for command registration (Lua alternative)
+  - [ ] 16.3 Ensure commands are only available after plugin is loaded
+
+- [ ] 17.0 Documentation and README
+  - [ ] 17.1 Create `README.md` with plugin overview
+    - [ ] 17.1.1 Introduction: What is zournal.nvim?
+    - [ ] 17.1.2 Features: List all journal, Zettelkasten, tagging, and navigation features
+    - [ ] 17.1.3 Installation: Instructions for popular plugin managers (lazy.nvim, packer, vim-plug)
+  - [ ] 17.2 Document configuration
+    - [ ] 17.2.1 Show example `setup()` call with all options
+    - [ ] 17.2.2 Explain each configuration option
+    - [ ] 17.2.3 Show default values
+  - [ ] 17.3 Document commands
+    - [ ] 17.3.1 List all `:Zournal*` commands with descriptions
+    - [ ] 17.3.2 Provide usage examples for each command
+  - [ ] 17.4 Document workflows
+    - [ ] 17.4.1 Example: Daily journaling workflow
+    - [ ] 17.4.2 Example: Creating and navigating Zettelkasten notes
+    - [ ] 17.4.3 Example: Tagging and referencing lines
+  - [ ] 17.5 Document keybinding recommendations (user must configure their own)
+  - [ ] 17.6 Add troubleshooting section
+    - [ ] 17.6.1 Common errors (missing zid, missing templates, etc.)
+    - [ ] 17.6.2 Dependency requirements (Telescope, Plenary, Treesitter)
+  - [ ] 17.7 Add license and contribution guidelines
