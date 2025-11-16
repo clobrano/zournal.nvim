@@ -142,37 +142,37 @@ This task list guides the implementation of zournal.nvim based on PRD.md.
     - [x] 7.4.3 `get_siblings(zid)` - Find all notes with same parent prefix but different last segment
     - [x] 7.4.4 `get_parent(zid)` - Find note with parent zid
 
-- [ ] 8.0 Zettelkasten Note Creation (Child/Sibling/Parent)
-  - [ ] 8.1 Implement `create_child_note()` in `lua/zournal/zettelkasten.lua`
-    - [ ] 8.1.1 Get zid from current file's frontmatter (error if missing)
-    - [ ] 8.1.2 Find all existing children of current zid
-    - [ ] 8.1.3 Generate next child zid (filling gaps)
-    - [ ] 8.1.4 Prompt user for filename/title
-    - [ ] 8.1.5 Check if visual selection exists
-    - [ ] 8.1.6 If visual selection: extract selected text, prepare WikiLink replacement
-    - [ ] 8.1.7 Create new file with frontmatter: `zid` (new child zid), `created` (current date)
-    - [ ] 8.1.8 If visual selection: write selected text to new file, replace selection with `[[filename]]`
-    - [ ] 8.1.9 Open new file in buffer
-  - [ ] 8.2 Implement `create_sibling_note()`
-    - [ ] 8.2.1 Get zid from current file's frontmatter (error if missing)
-    - [ ] 8.2.2 Find all existing siblings of current zid
-    - [ ] 8.2.3 Generate next sibling zid (filling gaps)
-    - [ ] 8.2.4 Prompt user for filename/title
-    - [ ] 8.2.5 Check if visual selection exists
-    - [ ] 8.2.6 If visual selection: extract selected text, prepare WikiLink replacement
-    - [ ] 8.2.7 Create new file with frontmatter: `zid` (new sibling zid), `created` (current date)
-    - [ ] 8.2.8 If visual selection: write selected text to new file, replace selection with `[[filename]]`
-    - [ ] 8.2.9 Open new file in buffer
-  - [ ] 8.3 Implement `add_parent_relationship()`
-    - [ ] 8.3.1 Prompt user for parent note filename
-    - [ ] 8.3.2 Search for parent note in root_dir
-    - [ ] 8.3.3 Get parent's zid from frontmatter (error if missing)
-    - [ ] 8.3.4 Find all existing children of parent
-    - [ ] 8.3.5 Generate next child zid for current note
-    - [ ] 8.3.6 Update current file's frontmatter with new zid
-  - [ ] 8.4 Error handling for missing zid
-    - [ ] 8.4.1 Display helpful error message when zid is required but missing
-    - [ ] 8.4.2 Explain how to manually add zid to frontmatter
+- [x] 8.0 Zettelkasten Note Creation (Child/Sibling/Parent)
+  - [x] 8.1 Implement `create_child_note()` in `lua/zournal/zettelkasten.lua`
+    - [x] 8.1.1 Get zid from current file's frontmatter (error if missing)
+    - [x] 8.1.2 Find all existing children of current zid
+    - [x] 8.1.3 Generate next child zid (filling gaps)
+    - [x] 8.1.4 Prompt user for filename/title
+    - [x] 8.1.5 Check if visual selection exists
+    - [x] 8.1.6 If visual selection: extract selected text, prepare WikiLink replacement
+    - [x] 8.1.7 Create new file with frontmatter: `zid` (new child zid), `created` (current date)
+    - [x] 8.1.8 If visual selection: write selected text to new file, replace selection with `[[filename]]`
+    - [x] 8.1.9 Open new file in buffer
+  - [x] 8.2 Implement `create_sibling_note()`
+    - [x] 8.2.1 Get zid from current file's frontmatter (error if missing)
+    - [x] 8.2.2 Find all existing siblings of current zid
+    - [x] 8.2.3 Generate next sibling zid (filling gaps)
+    - [x] 8.2.4 Prompt user for filename/title
+    - [x] 8.2.5 Check if visual selection exists
+    - [x] 8.2.6 If visual selection: extract selected text, prepare WikiLink replacement
+    - [x] 8.2.7 Create new file with frontmatter: `zid` (new sibling zid), `created` (current date)
+    - [x] 8.2.8 If visual selection: write selected text to new file, replace selection with `[[filename]]`
+    - [x] 8.2.9 Open new file in buffer
+  - [x] 8.3 Implement `add_parent_relationship()`
+    - [x] 8.3.1 Prompt user for parent note filename
+    - [x] 8.3.2 Search for parent note in root_dir
+    - [x] 8.3.3 Get parent's zid from frontmatter (error if missing)
+    - [x] 8.3.4 Find all existing children of parent
+    - [x] 8.3.5 Generate next child zid for current note
+    - [x] 8.3.6 Update current file's frontmatter with new zid
+  - [x] 8.4 Error handling for missing zid
+    - [x] 8.4.1 Display helpful error message when zid is required but missing
+    - [x] 8.4.2 Explain how to manually add zid to frontmatter
 
 - [ ] 9.0 Line Tagging System with UUID
   - [ ] 9.1 Implement UUID generation in `lua/zournal/tags.lua`

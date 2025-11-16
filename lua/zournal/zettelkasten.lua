@@ -382,4 +382,258 @@ function M.get_parent(zid)
   return nil
 end
 
+-- ============================================================================
+-- Note Creation (8.0)
+-- ============================================================================
+
+--- Helper: Get current file path
+---@return string|nil
+local function get_current_file_path()
+  return vim.api.nvim_buf_get_name(0)
+end
+
+--- Helper: Show error for missing zid
+local function show_missing_zid_error()
+  vim.notify(
+    "This file does not have a Zettelkasten ID (zid) in its frontmatter.\n\n"
+      .. "To add a zid, add the following to the top of your file:\n"
+      .. "---\n"
+      .. "zid: 1\n"
+      .. "created: "
+      .. os.date("%Y-%m-%d")
+      .. "\n"
+      .. "---",
+    vim.log.levels.ERROR
+  )
+end
+
+--- Create a child note
+---@return boolean success
+function M.create_child_note()
+  local cfg = config.get()
+
+  -- Get zid from current file's frontmatter
+  local current_file = get_current_file_path()
+  if not current_file or current_file == "" then
+    vim.notify("No file is currently open", vim.log.levels.ERROR)
+    return false
+  end
+
+  local current_zid = frontmatter.get_zid(current_file)
+  if not current_zid then
+    show_missing_zid_error()
+    return false
+  end
+  current_zid = tostring(current_zid)
+
+  -- Find all existing children
+  local children = M.get_children(current_zid)
+  local existing_child_zids = {}
+  for _, child in ipairs(children) do
+    table.insert(existing_child_zids, child.zid)
+  end
+
+  -- Generate next child zid
+  local new_zid = M.get_next_child_zid(current_zid, existing_child_zids)
+
+  -- Prompt user for filename/title
+  local title = vim.fn.input("Note title: ")
+  if not title or title == "" then
+    vim.notify("Note creation cancelled", vim.log.levels.INFO)
+    return false
+  end
+
+  -- Sanitize filename
+  local filename = title
+  if not filename:match("%.md$") then
+    filename = filename .. ".md"
+  end
+
+  -- Build file path
+  local file_path = utils.join_path(cfg.root_dir, filename)
+
+  -- Check if visual selection exists
+  local visual_mode = vim.fn.mode()
+  local has_selection = visual_mode == "v" or visual_mode == "V" or visual_mode == "\22" -- \22 is <C-v>
+  local selected_text = nil
+
+  if has_selection then
+    selected_text = utils.get_visual_selection()
+  end
+
+  -- Create new file with frontmatter
+  local content = ""
+  if selected_text and selected_text ~= "" then
+    content = selected_text
+  else
+    content = "# " .. title .. "\n\n"
+  end
+
+  -- Add frontmatter
+  frontmatter.update_frontmatter(file_path, {
+    zid = new_zid,
+    created = os.date("%Y-%m-%d"),
+  })
+
+  -- Append content to file (after frontmatter)
+  local existing_content = utils.read_file(file_path) or ""
+  utils.write_file(file_path, existing_content .. content)
+
+  -- If visual selection: replace with WikiLink
+  if has_selection and selected_text then
+    -- Get filename without extension for WikiLink
+    local link_name = utils.get_filename_without_ext(filename)
+    utils.replace_visual_selection("[[" .. link_name .. "]]")
+  end
+
+  -- Open new file in buffer
+  vim.notify("Created child note: " .. new_zid .. " - " .. filename, vim.log.levels.INFO)
+  return utils.open_file_in_buffer(file_path)
+end
+
+--- Create a sibling note
+---@return boolean success
+function M.create_sibling_note()
+  local cfg = config.get()
+
+  -- Get zid from current file's frontmatter
+  local current_file = get_current_file_path()
+  if not current_file or current_file == "" then
+    vim.notify("No file is currently open", vim.log.levels.ERROR)
+    return false
+  end
+
+  local current_zid = frontmatter.get_zid(current_file)
+  if not current_zid then
+    show_missing_zid_error()
+    return false
+  end
+  current_zid = tostring(current_zid)
+
+  -- Find all existing siblings
+  local siblings = M.get_siblings(current_zid)
+  local existing_sibling_zids = { current_zid } -- Include current zid
+  for _, sibling in ipairs(siblings) do
+    table.insert(existing_sibling_zids, sibling.zid)
+  end
+
+  -- Generate next sibling zid
+  local new_zid = M.get_next_sibling_zid(current_zid, existing_sibling_zids)
+
+  -- Prompt user for filename/title
+  local title = vim.fn.input("Note title: ")
+  if not title or title == "" then
+    vim.notify("Note creation cancelled", vim.log.levels.INFO)
+    return false
+  end
+
+  -- Sanitize filename
+  local filename = title
+  if not filename:match("%.md$") then
+    filename = filename .. ".md"
+  end
+
+  -- Build file path
+  local file_path = utils.join_path(cfg.root_dir, filename)
+
+  -- Check if visual selection exists
+  local visual_mode = vim.fn.mode()
+  local has_selection = visual_mode == "v" or visual_mode == "V" or visual_mode == "\22"
+  local selected_text = nil
+
+  if has_selection then
+    selected_text = utils.get_visual_selection()
+  end
+
+  -- Create new file with frontmatter
+  local content = ""
+  if selected_text and selected_text ~= "" then
+    content = selected_text
+  else
+    content = "# " .. title .. "\n\n"
+  end
+
+  -- Add frontmatter
+  frontmatter.update_frontmatter(file_path, {
+    zid = new_zid,
+    created = os.date("%Y-%m-%d"),
+  })
+
+  -- Append content to file (after frontmatter)
+  local existing_content = utils.read_file(file_path) or ""
+  utils.write_file(file_path, existing_content .. content)
+
+  -- If visual selection: replace with WikiLink
+  if has_selection and selected_text then
+    local link_name = utils.get_filename_without_ext(filename)
+    utils.replace_visual_selection("[[" .. link_name .. "]]")
+  end
+
+  -- Open new file in buffer
+  vim.notify("Created sibling note: " .. new_zid .. " - " .. filename, vim.log.levels.INFO)
+  return utils.open_file_in_buffer(file_path)
+end
+
+--- Add parent relationship to current note
+---@return boolean success
+function M.add_parent_relationship()
+  -- Get current file
+  local current_file = get_current_file_path()
+  if not current_file or current_file == "" then
+    vim.notify("No file is currently open", vim.log.levels.ERROR)
+    return false
+  end
+
+  -- Prompt for parent note filename
+  local parent_filename = vim.fn.input("Parent note filename: ")
+  if not parent_filename or parent_filename == "" then
+    vim.notify("Operation cancelled", vim.log.levels.INFO)
+    return false
+  end
+
+  -- Add .md if not present
+  if not parent_filename:match("%.md$") then
+    parent_filename = parent_filename .. ".md"
+  end
+
+  -- Search for parent note in root_dir
+  local cfg = config.get()
+  local parent_path = utils.join_path(cfg.root_dir, parent_filename)
+
+  if not utils.file_exists(parent_path) then
+    vim.notify("Parent note not found: " .. parent_filename, vim.log.levels.ERROR)
+    return false
+  end
+
+  -- Get parent's zid from frontmatter
+  local parent_zid = frontmatter.get_zid(parent_path)
+  if not parent_zid then
+    vim.notify(
+      "Parent note does not have a zid in its frontmatter: " .. parent_filename,
+      vim.log.levels.ERROR
+    )
+    return false
+  end
+  parent_zid = tostring(parent_zid)
+
+  -- Find all existing children of parent
+  local children = M.get_children(parent_zid)
+  local existing_child_zids = {}
+  for _, child in ipairs(children) do
+    table.insert(existing_child_zids, child.zid)
+  end
+
+  -- Generate next child zid for current note
+  local new_zid = M.get_next_child_zid(parent_zid, existing_child_zids)
+
+  -- Update current file's frontmatter with new zid
+  frontmatter.set_zid(current_file, new_zid)
+
+  vim.notify(
+    "Updated zid to " .. new_zid .. " (child of " .. parent_zid .. ")",
+    vim.log.levels.INFO
+  )
+  return true
+end
+
 return M
