@@ -44,25 +44,25 @@ This task list guides the implementation of zournal.nvim based on PRD.md.
   - [x] 2.4 Expose config getter function for other modules to access configuration
   - [x] 2.5 Expand tilde (`~`) in paths to absolute home directory path
 
-- [ ] 3.0 Core Utilities and Helper Functions
-  - [ ] 3.1 Create file operation utilities in `lua/zournal/utils.lua` using Plenary
-    - [ ] 3.1.1 `file_exists(path)` - Check if file exists
-    - [ ] 3.1.2 `ensure_dir(path)` - Create directory if it doesn't exist
-    - [ ] 3.1.3 `read_file(path)` - Read entire file contents
-    - [ ] 3.1.4 `write_file(path, content)` - Write content to file
-    - [ ] 3.1.5 `find_files_with_pattern(dir, pattern)` - Find files matching pattern
-  - [ ] 3.2 Create date formatting utilities
-    - [ ] 3.2.1 `format_date(format_string, date)` - Format date using strftime-like patterns
-    - [ ] 3.2.2 `get_iso_week(date)` - Get ISO week number for a date
-    - [ ] 3.2.3 `parse_date(date_string)` - Parse date string to date object
-  - [ ] 3.3 Create path utilities
-    - [ ] 3.3.1 `join_path(...)` - Join path components (use Plenary's path module)
-    - [ ] 3.3.2 `expand_path(path)` - Expand `~` and environment variables
-    - [ ] 3.3.3 `get_filename_without_ext(path)` - Extract filename without extension
-  - [ ] 3.4 Create buffer/window utilities
-    - [ ] 3.4.1 `open_file_in_buffer(path)` - Open file in current or new buffer
-    - [ ] 3.4.2 `get_visual_selection()` - Get currently selected text in visual mode
-    - [ ] 3.4.3 `replace_visual_selection(replacement)` - Replace visual selection with text
+- [x] 3.0 Core Utilities and Helper Functions
+  - [x] 3.1 Create file operation utilities in `lua/zournal/utils.lua` using Plenary
+    - [x] 3.1.1 `file_exists(path)` - Check if file exists
+    - [x] 3.1.2 `ensure_dir(path)` - Create directory if it doesn't exist
+    - [x] 3.1.3 `read_file(path)` - Read entire file contents
+    - [x] 3.1.4 `write_file(path, content)` - Write content to file
+    - [x] 3.1.5 `find_files_with_pattern(dir, pattern)` - Find files matching pattern
+  - [x] 3.2 Create date formatting utilities
+    - [x] 3.2.1 `format_date(format_string, date)` - Format date using strftime-like patterns
+    - [x] 3.2.2 `get_iso_week(date)` - Get ISO week number for a date
+    - [x] 3.2.3 `parse_date(date_string)` - Parse date string to date object
+  - [x] 3.3 Create path utilities
+    - [x] 3.3.1 `join_path(...)` - Join path components (use Plenary's path module)
+    - [x] 3.3.2 `expand_path(path)` - Expand `~` and environment variables
+    - [x] 3.3.3 `get_filename_without_ext(path)` - Extract filename without extension
+  - [x] 3.4 Create buffer/window utilities
+    - [x] 3.4.1 `open_file_in_buffer(path)` - Open file in current or new buffer
+    - [x] 3.4.2 `get_visual_selection()` - Get currently selected text in visual mode
+    - [x] 3.4.3 `replace_visual_selection(replacement)` - Replace visual selection with text
 
 - [ ] 4.0 YAML Frontmatter Management
   - [ ] 4.1 Implement frontmatter parsing in `lua/zournal/frontmatter.lua`
