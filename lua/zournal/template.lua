@@ -8,23 +8,16 @@ local utils = require("zournal.utils")
 -- ============================================================================
 
 --- Default template for daily journal
-local DEFAULT_DAILY_TEMPLATE = [[---
-created: {{date}}
----
-
-# Daily Journal - {{date}}
+--- Note: Journal notes do NOT have frontmatter
+local DEFAULT_DAILY_TEMPLATE = [[# Daily Journal - {{date}}
 
 ## Notes
 
 ]]
 
 --- Default template for weekly journal
-local DEFAULT_WEEKLY_TEMPLATE = [[---
-created: {{date}}
-week: {{week}}
----
-
-# Weekly Journal - Week {{week}} ({{date}})
+--- Note: Journal notes do NOT have frontmatter
+local DEFAULT_WEEKLY_TEMPLATE = [[# Weekly Journal - Week {{week}} ({{date}})
 
 ## Goals
 
@@ -35,13 +28,8 @@ week: {{week}}
 ]]
 
 --- Default template for monthly journal
-local DEFAULT_MONTHLY_TEMPLATE = [[---
-created: {{date}}
-month: {{month}}
-year: {{year}}
----
-
-# Monthly Journal - {{month}} {{year}}
+--- Note: Journal notes do NOT have frontmatter
+local DEFAULT_MONTHLY_TEMPLATE = [[# Monthly Journal - {{month}} {{year}}
 
 ## Overview
 
@@ -52,11 +40,8 @@ year: {{year}}
 ]]
 
 --- Default template for inbox notes
-local DEFAULT_INBOX_TEMPLATE = [[---
-created: {{date}}
----
-
-# {{title}}
+--- Note: Journal notes do NOT have frontmatter
+local DEFAULT_INBOX_TEMPLATE = [[# {{title}}
 
 ]]
 

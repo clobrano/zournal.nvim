@@ -461,23 +461,26 @@ function M.create_child_note()
     selected_text = utils.get_visual_selection()
   end
 
-  -- Create new file with frontmatter
-  local content = ""
+  -- Create title line
+  local title_line = "# " .. title
+
+  -- Prepare content (selected text or empty)
+  local body_content = ""
   if selected_text and selected_text ~= "" then
-    content = selected_text
-  else
-    content = "# " .. title .. "\n\n"
+    body_content = selected_text
   end
 
-  -- Add frontmatter
+  -- Create frontmatter with title, which places it after the title
   frontmatter.update_frontmatter(file_path, {
     zid = new_zid,
     created = os.date("%Y-%m-%d"),
-  })
+  }, title_line)
 
-  -- Append content to file (after frontmatter)
-  local existing_content = utils.read_file(file_path) or ""
-  utils.write_file(file_path, existing_content .. content)
+  -- Append body content to file (after frontmatter)
+  if body_content ~= "" then
+    local existing_content = utils.read_file(file_path) or ""
+    utils.write_file(file_path, existing_content .. "\n" .. body_content)
+  end
 
   -- If visual selection: replace with WikiLink
   if has_selection and selected_text then
@@ -545,23 +548,26 @@ function M.create_sibling_note()
     selected_text = utils.get_visual_selection()
   end
 
-  -- Create new file with frontmatter
-  local content = ""
+  -- Create title line
+  local title_line = "# " .. title
+
+  -- Prepare content (selected text or empty)
+  local body_content = ""
   if selected_text and selected_text ~= "" then
-    content = selected_text
-  else
-    content = "# " .. title .. "\n\n"
+    body_content = selected_text
   end
 
-  -- Add frontmatter
+  -- Create frontmatter with title, which places it after the title
   frontmatter.update_frontmatter(file_path, {
     zid = new_zid,
     created = os.date("%Y-%m-%d"),
-  })
+  }, title_line)
 
-  -- Append content to file (after frontmatter)
-  local existing_content = utils.read_file(file_path) or ""
-  utils.write_file(file_path, existing_content .. content)
+  -- Append body content to file (after frontmatter)
+  if body_content ~= "" then
+    local existing_content = utils.read_file(file_path) or ""
+    utils.write_file(file_path, existing_content .. "\n" .. body_content)
+  end
 
   -- If visual selection: replace with WikiLink
   if has_selection and selected_text then
