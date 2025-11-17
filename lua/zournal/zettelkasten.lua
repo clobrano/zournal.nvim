@@ -449,8 +449,9 @@ function M.create_child_note()
     filename = filename .. ".md"
   end
 
-  -- Build file path
-  local file_path = utils.join_path(cfg.root_dir, filename)
+  -- Build file path in same directory as parent note
+  local parent_dir = vim.fn.fnamemodify(current_file, ":h")
+  local file_path = utils.join_path(parent_dir, filename)
 
   -- Check if visual selection exists
   local visual_mode = vim.fn.mode()
@@ -536,8 +537,9 @@ function M.create_sibling_note()
     filename = filename .. ".md"
   end
 
-  -- Build file path
-  local file_path = utils.join_path(cfg.root_dir, filename)
+  -- Build file path in same directory as current note
+  local parent_dir = vim.fn.fnamemodify(current_file, ":h")
+  local file_path = utils.join_path(parent_dir, filename)
 
   -- Check if visual selection exists
   local visual_mode = vim.fn.mode()
