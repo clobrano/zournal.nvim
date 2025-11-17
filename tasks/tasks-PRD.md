@@ -296,24 +296,24 @@ This task list guides the implementation of zournal.nvim based on PRD.md.
   - [x] 16.2 Use `vim.api.nvim_create_user_command()` for command registration (Lua alternative)
   - [x] 16.3 Ensure commands are only available after plugin is loaded
 
-- [ ] 17.0 Documentation and README
-  - [ ] 17.1 Create `README.md` with plugin overview
-    - [ ] 17.1.1 Introduction: What is zournal.nvim?
-    - [ ] 17.1.2 Features: List all journal, Zettelkasten, tagging, and navigation features
-    - [ ] 17.1.3 Installation: Instructions for popular plugin managers (lazy.nvim, packer, vim-plug)
-  - [ ] 17.2 Document configuration
-    - [ ] 17.2.1 Show example `setup()` call with all options
-    - [ ] 17.2.2 Explain each configuration option
-    - [ ] 17.2.3 Show default values
-  - [ ] 17.3 Document commands
-    - [ ] 17.3.1 List all `:Zournal*` commands with descriptions
-    - [ ] 17.3.2 Provide usage examples for each command
-  - [ ] 17.4 Document workflows
-    - [ ] 17.4.1 Example: Daily journaling workflow
-    - [ ] 17.4.2 Example: Creating and navigating Zettelkasten notes
-    - [ ] 17.4.3 Example: Tagging and referencing lines
-  - [ ] 17.5 Document keybinding recommendations (user must configure their own)
-  - [ ] 17.6 Add troubleshooting section
-    - [ ] 17.6.1 Common errors (missing zid, missing templates, etc.)
-    - [ ] 17.6.2 Dependency requirements (Telescope, Plenary, Treesitter)
-  - [ ] 17.7 Add license and contribution guidelines
+- [x] 17.0 Documentation and README
+  - [x] 17.1 Create `README.md` with plugin overview
+    - [x] 17.1.1 Introduction: What is zournal.nvim?
+    - [x] 17.1.2 Features: List all journal, Zettelkasten, tagging, and navigation features
+    - [x] 17.1.3 Installation: Instructions for popular plugin managers (lazy.nvim, packer, vim-plug)
+  - [x] 17.2 Document configuration
+    - [x] 17.2.1 Show example `setup()` call with all options
+    - [x] 17.2.2 Explain each configuration option
+    - [x] 17.2.3 Show default values
+  - [x] 17.3 Document commands
+    - [x] 17.3.1 List all `:Zournal*` commands with descriptions
+    - [x] 17.3.2 Provide usage examples for each command
+  - [x] 17.4 Document workflows
+    - [x] 17.4.1 Example: Daily journaling workflow
+    - [x] 17.4.2 Example: Creating and navigating Zettelkasten notes
+    - [x] 17.4.3 Example: Tagging and referencing lines
+  - [x] 17.5 Document keybinding recommendations (user must configure their own)
+  - [x] 17.6 Add troubleshooting section
+    - [x] 17.6.1 Common errors (missing zid, missing templates, etc.)
+    - [x] 17.6.2 Dependency requirements (Telescope, Plenary, Treesitter)
+  - [x] 17.7 Add license and contribution guidelines
