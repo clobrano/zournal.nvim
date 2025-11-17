@@ -127,17 +127,27 @@ Templates support the following variables:
 - `{{day}}` - Current day
 - `{{week}}` - Current ISO week number
 
+**Note**: Journal notes (daily/weekly/monthly/inbox) do NOT have frontmatter by default.
+
 Example template (`daily_template.md`):
 ```markdown
----
-date: {{date}}
----
-
-# {{date}}
+# Daily Journal - {{date}}
 
 ## Tasks
 
 ## Notes
+```
+
+Example Zettelkasten note (manually created root note):
+```markdown
+# My Note Title
+
+---
+zid: 1
+created: {{date}}
+---
+
+Content here...
 ```
 
 ## Commands
@@ -191,15 +201,19 @@ date: {{date}}
 
 ### Creating Zettelkasten Notes
 
-1. Create a root note manually with frontmatter:
+1. Create a root note manually with frontmatter after the title:
    ```markdown
+   # My First Note
+
    ---
    zid: 1
    created: 2024-01-15
    ---
 
-   # My First Note
+   Content goes here...
    ```
+
+   **Note**: Zettelkasten notes have frontmatter AFTER the title. Journal notes have NO frontmatter.
 
 2. Create child notes:
    ```vim
@@ -315,13 +329,19 @@ If you have `1a1` and `1a3`, creating a new sibling will create `1a2` (fills the
 
 This error appears when you try to use Zettelkasten commands (NewChild, NewSibling, Relations) on a file without a zid.
 
-**Solution**: Add YAML frontmatter to your file:
+**Solution**: Add YAML frontmatter to your file AFTER the title:
 ```markdown
+# My Note Title
+
 ---
 zid: 1
 created: 2024-01-15
 ---
+
+Content here...
 ```
+
+**Important**: Frontmatter must come AFTER the first header (title) in Zettelkasten notes. Journal notes should NOT have frontmatter at all.
 
 ### Links not resolving
 
