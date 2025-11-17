@@ -89,36 +89,103 @@ EOF
 
 ## Configuration
 
-Here's an example configuration with all available options and their defaults:
+### BREAKING CHANGE (Multi-Workspace Support)
+
+**Version 2.0 introduces multi-workspace support and requires configuration changes.**
+
+#### Migration Guide
+
+If you're upgrading from version 1.x, you need to update your configuration:
+
+**Old configuration (1.x):**
+```lua
+require('zournal').setup({
+  root_dir = "~/notes/",
+  journal_dir = "Journal/",
+  -- ... other options
+})
+```
+
+**New configuration (2.0+):**
+```lua
+require('zournal').setup({
+  workspaces = {
+    personal = {
+      root_dir = "~/notes/",
+      journal_dir = "Journal/",
+      -- ... other options
+    },
+  },
+})
+```
+
+The new version **requires** a `workspaces` table. Each workspace is a named configuration that can have its own settings.
+
+### Multi-Workspace Configuration
+
+Here's an example with multiple workspaces:
 
 ```lua
 require('zournal').setup({
-  -- Root directory for Zettelkasten notes
-  root_dir = "~/notes/",
-
-  -- Journal directory for daily/weekly/monthly journals
-  -- Can be absolute or relative to root_dir
-  journal_dir = "Journal/",
-
-  -- Filename formats for journal types (strftime-like patterns)
-  daily_format = "%Y-%m-%d.md",
-  weekly_format = "%Y-W%W.md",
-  monthly_format = "%Y-%m.md",
-
-  -- Template file paths (leave empty for basic defaults)
-  daily_template = "",
-  weekly_template = "",
-  monthly_template = "",
-  inbox_template = "",
-
-  -- Inbox directory (relative to root_dir)
-  inbox_dir = "Resources/",
-
-  -- Tag concealment symbols
-  tag_symbol = "📌",
-  reference_symbol = "→📌",
+  workspaces = {
+    personal = {
+      root_dir = "~/notes/",
+      journal_dir = "Journal/",
+      daily_format = "%Y-%m-%d.md",
+      weekly_format = "%Y-W%W.md",
+      monthly_format = "%Y-%m.md",
+      inbox_dir = "Resources/",
+      tag_symbol = "📌",
+      reference_symbol = "→📌",
+    },
+    work = {
+      root_dir = "~/work-notes/",
+      journal_dir = "work-journal/",
+      daily_format = "%Y-%m-%d.md",
+      weekly_format = "%Y-W%W.md",
+      monthly_format = "%Y-%m.md",
+      inbox_dir = "Inbox/",
+      tag_symbol = "📌",
+      reference_symbol = "→📌",
+    },
+  },
 })
 ```
+
+### Workspace Options
+
+Each workspace supports the following options:
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `root_dir` | **required** | Root directory for Zettelkasten notes |
+| `journal_dir` | `"Journal/"` | Directory for daily/weekly/monthly journals (absolute or relative to `root_dir`) |
+| `daily_format` | `"%Y-%m-%d.md"` | Filename format for daily journals (strftime pattern) |
+| `weekly_format` | `"%Y-W%W.md"` | Filename format for weekly journals (strftime pattern) |
+| `monthly_format` | `"%Y-%m.md"` | Filename format for monthly journals (strftime pattern) |
+| `daily_template` | `""` | Path to daily journal template file |
+| `weekly_template` | `""` | Path to weekly journal template file |
+| `monthly_template` | `""` | Path to monthly journal template file |
+| `inbox_template` | `""` | Path to inbox note template file |
+| `inbox_dir` | `"Resources/"` | Directory for inbox notes (relative to `root_dir`) |
+| `tag_symbol` | `"📌"` | Symbol for concealed tags |
+| `reference_symbol` | `"→📌"` | Symbol for concealed reference tags |
+
+### Workspace Auto-Detection
+
+zournal.nvim automatically detects which workspace to use based on:
+
+1. **Current file path** (when you open a `.md` file)
+2. **Current working directory** (when you change directories)
+3. **Manual selection** (using `:ZournalSelectWorkspace`)
+
+The plugin uses the **longest matching path** when multiple workspaces could match.
+
+**Example:**
+- Workspace `personal` has `root_dir = "~/notes/"`
+- Workspace `work` has `root_dir = "~/notes/work/"`
+- Opening `~/notes/work/project.md` → selects `work` (more specific match)
+- Opening `~/notes/personal.md` → selects `personal`
 
 ### Directory Structure
 
@@ -212,7 +279,32 @@ Content here...
 | `:ZournalLinks` | Open Telescope picker showing all links in current file |
 | `:ZournalFollowLink` | Follow link under cursor |
 
+### Workspace Commands
+
+| Command | Description |
+|---------|-------------|
+| `:ZournalSelectWorkspace <name>` | Manually switch to specified workspace |
+| `:ZournalListWorkspaces` | List all configured workspaces |
+| `:ZournalCurrentWorkspace` | Show current workspace information |
+
 ## Workflows
+
+### Using Multiple Workspaces
+
+```vim
+" List all configured workspaces
+:ZournalListWorkspaces
+
+" Check current workspace
+:ZournalCurrentWorkspace
+
+" Manually switch workspace
+:ZournalSelectWorkspace work
+
+" Workspaces auto-switch when you:
+" - Open a .md file in a workspace directory
+" - Change directory (:cd) to a workspace directory
+```
 
 ### Daily Journaling
 

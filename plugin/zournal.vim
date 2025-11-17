@@ -28,3 +28,8 @@ command! ZournalCopyTag lua require('zournal.tags').copy_tag_from_line()
 " Navigation commands
 command! -nargs=? ZournalJumpToDate lua require('zournal.journal').jump_to_date(<f-args>)
 command! ZournalFollowLink lua require('zournal.links').follow_link()
+
+" Workspace management commands
+command! -nargs=1 ZournalSelectWorkspace lua require('zournal.config').set_active_workspace(<f-args>)
+command! ZournalListWorkspaces lua require('zournal.workspace').list_workspaces()
+command! ZournalCurrentWorkspace lua require('zournal.workspace').show_current_workspace()
