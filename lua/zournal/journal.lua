@@ -20,11 +20,12 @@ function M.create_daily_journal()
   -- Format filename using daily_format from config
   local filename = utils.format_date(cfg.daily_format)
 
-  -- Build full path: root_dir/filename
-  local file_path = utils.join_path(cfg.root_dir, filename)
+  -- Build full path: journal_dir/filename
+  local journal_dir = config.get_journal_dir()
+  local file_path = utils.join_path(journal_dir, filename)
 
-  -- Ensure root directory exists
-  utils.ensure_dir(cfg.root_dir)
+  -- Ensure journal directory exists
+  utils.ensure_dir(journal_dir)
 
   -- Check if file exists; if not, create from template
   if not utils.file_exists(file_path) then
@@ -52,11 +53,12 @@ function M.create_weekly_journal()
   -- Format filename using weekly_format from config
   local filename = utils.format_date(cfg.weekly_format)
 
-  -- Build full path: root_dir/filename
-  local file_path = utils.join_path(cfg.root_dir, filename)
+  -- Build full path: journal_dir/filename
+  local journal_dir = config.get_journal_dir()
+  local file_path = utils.join_path(journal_dir, filename)
 
-  -- Ensure root directory exists
-  utils.ensure_dir(cfg.root_dir)
+  -- Ensure journal directory exists
+  utils.ensure_dir(journal_dir)
 
   -- Check if file exists; if not, create from template
   if not utils.file_exists(file_path) then
@@ -87,11 +89,12 @@ function M.create_monthly_journal()
   -- Format filename using monthly_format from config
   local filename = utils.format_date(cfg.monthly_format)
 
-  -- Build full path: root_dir/filename
-  local file_path = utils.join_path(cfg.root_dir, filename)
+  -- Build full path: journal_dir/filename
+  local journal_dir = config.get_journal_dir()
+  local file_path = utils.join_path(journal_dir, filename)
 
-  -- Ensure root directory exists
-  utils.ensure_dir(cfg.root_dir)
+  -- Ensure journal directory exists
+  utils.ensure_dir(journal_dir)
 
   -- Check if file exists; if not, create from template
   if not utils.file_exists(file_path) then
@@ -156,6 +159,7 @@ end
 ---@return boolean success
 function M.jump_to_date(date_string)
   local cfg = config.get()
+  local journal_dir = config.get_journal_dir()
 
   -- Parse date string
   local timestamp = utils.parse_date(date_string)
@@ -166,21 +170,21 @@ function M.jump_to_date(date_string)
 
   -- Try daily journal first
   local daily_filename = utils.format_date(cfg.daily_format, timestamp)
-  local daily_path = utils.join_path(cfg.root_dir, daily_filename)
+  local daily_path = utils.join_path(journal_dir, daily_filename)
   if utils.file_exists(daily_path) then
     return utils.open_file_in_buffer(daily_path)
   end
 
   -- Try weekly journal
   local weekly_filename = utils.format_date(cfg.weekly_format, timestamp)
-  local weekly_path = utils.join_path(cfg.root_dir, weekly_filename)
+  local weekly_path = utils.join_path(journal_dir, weekly_filename)
   if utils.file_exists(weekly_path) then
     return utils.open_file_in_buffer(weekly_path)
   end
 
   -- Try monthly journal
   local monthly_filename = utils.format_date(cfg.monthly_format, timestamp)
-  local monthly_path = utils.join_path(cfg.root_dir, monthly_filename)
+  local monthly_path = utils.join_path(journal_dir, monthly_filename)
   if utils.file_exists(monthly_path) then
     return utils.open_file_in_buffer(monthly_path)
   end

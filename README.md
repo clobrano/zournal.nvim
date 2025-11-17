@@ -93,8 +93,12 @@ Here's an example configuration with all available options and their defaults:
 
 ```lua
 require('zournal').setup({
-  -- Root directory for all journal files
-  root_dir = "~/journal/",
+  -- Root directory for Zettelkasten notes
+  root_dir = "~/notes/",
+
+  -- Journal directory for daily/weekly/monthly journals
+  -- Can be absolute or relative to root_dir
+  journal_dir = "Journal/",
 
   -- Filename formats for journal types (strftime-like patterns)
   daily_format = "%Y-%m-%d.md",
@@ -115,6 +119,27 @@ require('zournal').setup({
   reference_symbol = "→📌",
 })
 ```
+
+### Directory Structure
+
+With the default configuration, your files will be organized as:
+
+```
+~/notes/                    # root_dir - Zettelkasten notes
+├── My First Note.md
+├── Another Note.md
+├── Journal/                # journal_dir - Daily/weekly/monthly journals
+│   ├── 2024-01-15.md
+│   ├── 2024-01-15-W03.md
+│   └── 2024-01.md
+└── Resources/              # inbox_dir - Quick capture notes
+    └── Quick Idea.md
+```
+
+**Note**:
+- `journal_dir` can be absolute (e.g., `~/journals/`) or relative to `root_dir`
+- `inbox_dir` is always relative to `root_dir`
+- Zettelkasten notes are stored directly in `root_dir`
 
 ### Template Variables
 

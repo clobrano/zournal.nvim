@@ -3,8 +3,12 @@ local M = {}
 
 -- Default configuration values
 local defaults = {
-  -- Root directory for journal files
-  root_dir = "~/journal/",
+  -- Root directory for Zettelkasten notes
+  root_dir = "~/notes/",
+
+  -- Journal directory for daily/weekly/monthly journals
+  -- Can be absolute or relative to root_dir
+  journal_dir = "Journal/",
 
   -- Filename formats for different journal types
   daily_format = "%Y-%m-%d.md",
@@ -65,6 +69,7 @@ function M.setup(opts)
 
   -- Expand tilde in path configurations
   M.options.root_dir = expand_path(M.options.root_dir)
+  M.options.journal_dir = expand_path(M.options.journal_dir)
   M.options.daily_template = expand_path(M.options.daily_template)
   M.options.weekly_template = expand_path(M.options.weekly_template)
   M.options.monthly_template = expand_path(M.options.monthly_template)
@@ -74,6 +79,24 @@ end
 -- Getter function to access configuration
 function M.get()
   return M.options
+end
+
+-- Get the absolute journal directory path
+-- If journal_dir is relative, it's relative to root_dir
+-- If journal_dir is absolute, use it as-is
+function M.get_journal_dir()
+  local journal_dir = M.options.journal_dir or "Journal/"
+
+  -- If journal_dir is already absolute (starts with / or ~), use it
+  if journal_dir:match("^/") or journal_dir:match("^~") then
+    return expand_path(journal_dir)
+  end
+
+  -- Otherwise, it's relative to root_dir
+  local root = M.options.root_dir or "~/notes/"
+  -- Remove trailing slash from root if present
+  root = root:gsub("/$", "")
+  return root .. "/" .. journal_dir
 end
 
 -- Initialize with defaults on module load
