@@ -72,4 +72,47 @@ function M.copy_tag_from_line()
   vim.notify("Tag copied to clipboard: " .. tag, vim.log.levels.INFO)
 end
 
+-- Setup tag concealment for markdown files in journal directory
+-- Conceals UUID tags with symbols from config
+function M.setup_concealment()
+  local config = require('zournal.config').get()
+
+  -- Create autocommand group for tag concealment
+  local group = vim.api.nvim_create_augroup('ZournalTagConcealment', { clear = true })
+
+  vim.api.nvim_create_autocmd({'BufEnter', 'BufWinEnter'}, {
+    group = group,
+    pattern = '*.md',
+    callback = function()
+      local bufnr = vim.api.nvim_get_current_buf()
+      local filepath = vim.api.nvim_buf_get_name(bufnr)
+
+      -- Only apply concealment to files in the journal directory
+      local root_dir = vim.fn.expand(config.root_dir)
+      if not filepath:match('^' .. vim.pesc(root_dir)) then
+        return
+      end
+
+      -- Set up syntax concealment for tags
+      -- Pattern: #z followed by UUID (hex digits and hyphens)
+      vim.cmd([[
+        syntax match ZournalTag /#z[0-9a-f-]\+/ conceal
+      ]])
+
+      -- Set conceal character to tag symbol from config
+      -- Note: Neovim doesn't distinguish between original and reference tags easily
+      -- Using a simple approach: conceal all tags with the same symbol
+      local symbol = config.tag_symbol or "📌"
+      vim.cmd(string.format([[
+        syntax match ZournalTag /#z[0-9a-f-]\+/ conceal cchar=%s
+      ]], symbol))
+
+      -- Ensure concealment is enabled (respect user's conceallevel setting)
+      if vim.o.conceallevel == 0 then
+        vim.wo.conceallevel = 2
+      end
+    end,
+  })
+end
+
 return M

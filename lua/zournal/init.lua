@@ -18,6 +18,12 @@ M.telescope = {
 -- Main setup function
 function M.setup(opts)
   M.config.setup(opts or {})
+
+  -- Setup tag concealment
+  M.tags.setup_concealment()
+
+  -- Setup automatic link renaming
+  M.links.setup_auto_rename()
 end
 
 return M

@@ -191,80 +191,80 @@ This task list guides the implementation of zournal.nvim based on PRD.md.
     - [x] 9.3.4 Copy tag to system clipboard using `vim.fn.setreg('+', tag)`
     - [x] 9.3.5 Show confirmation message to user
 
-- [ ] 10.0 Tag Concealment (Original vs Reference)
-  - [ ] 10.1 Implement concealment syntax in `lua/zournal/tags.lua`
-    - [ ] 10.1.1 Create Neovim syntax highlighting rules for tag concealment
-    - [ ] 10.1.2 Define syntax pattern for original tags: `#z[0-9a-f-]+` at end of line
-    - [ ] 10.1.3 Conceal original tags with `tag_symbol` from config (default: `📌`)
-    - [ ] 10.1.4 Define syntax pattern for reference tags: `#z[0-9a-f-]+` NOT at end of line (heuristic)
-    - [ ] 10.1.5 Conceal reference tags with `reference_symbol` from config (default: `→📌`)
-  - [ ] 10.2 Set up concealment autocommand
-    - [ ] 10.2.1 Apply concealment rules to markdown files in journal directory
-    - [ ] 10.2.2 Use `vim.api.nvim_set_hl()` to define highlight groups
-    - [ ] 10.2.3 Ensure concealment respects user's `conceallevel` setting
-  - [ ] 10.3 NOTE: Differentiating original vs reference may require heuristic (position on line, context)
-    - [ ] 10.3.1 Alternative: Always conceal as `📌`, let user context determine if it's original or reference
-    - [ ] 10.3.2 Decision: Use simpler approach unless PRD strictly requires differentiation
+- [x] 10.0 Tag Concealment (Original vs Reference)
+  - [x] 10.1 Implement concealment syntax in `lua/zournal/tags.lua`
+    - [x] 10.1.1 Create Neovim syntax highlighting rules for tag concealment
+    - [x] 10.1.2 Define syntax pattern for original tags: `#z[0-9a-f-]+` at end of line
+    - [x] 10.1.3 Conceal original tags with `tag_symbol` from config (default: `📌`)
+    - [x] 10.1.4 Define syntax pattern for reference tags: `#z[0-9a-f-]+` NOT at end of line (heuristic)
+    - [x] 10.1.5 Conceal reference tags with `reference_symbol` from config (default: `→📌`)
+  - [x] 10.2 Set up concealment autocommand
+    - [x] 10.2.1 Apply concealment rules to markdown files in journal directory
+    - [x] 10.2.2 Use `vim.api.nvim_set_hl()` to define highlight groups
+    - [x] 10.2.3 Ensure concealment respects user's `conceallevel` setting
+  - [x] 10.3 NOTE: Differentiating original vs reference may require heuristic (position on line, context)
+    - [x] 10.3.1 Alternative: Always conceal as `📌`, let user context determine if it's original or reference
+    - [x] 10.3.2 Decision: Use simpler approach unless PRD strictly requires differentiation
 
-- [ ] 11.0 Link System and Navigation
-  - [ ] 11.1 Implement link parsing in `lua/zournal/links.lua`
-    - [ ] 11.1.1 `find_wikilinks(content)` - Parse content for `[[...]]` patterns, return list of link targets
-    - [ ] 11.1.2 `find_markdown_links(content)` - Parse content for `[text](path)` patterns, return list of paths
-    - [ ] 11.1.3 `find_all_links(content)` - Combine WikiLinks and Markdown links
-  - [ ] 11.2 Implement link resolution
-    - [ ] 11.2.1 `resolve_link(link_text, current_file_dir)` - Convert link text to absolute file path
-    - [ ] 11.2.2 For WikiLinks: search in root_dir for matching filename (with or without `.md`)
-    - [ ] 11.2.3 For Markdown links: resolve relative paths from current file location
-  - [ ] 11.3 Implement link following (integrate with Neovim's `gf` or custom command)
-    - [ ] 11.3.1 Get link under cursor
-    - [ ] 11.3.2 Resolve link to file path
-    - [ ] 11.3.3 Open file in buffer
+- [x] 11.0 Link System and Navigation
+  - [x] 11.1 Implement link parsing in `lua/zournal/links.lua`
+    - [x] 11.1.1 `find_wikilinks(content)` - Parse content for `[[...]]` patterns, return list of link targets
+    - [x] 11.1.2 `find_markdown_links(content)` - Parse content for `[text](path)` patterns, return list of paths
+    - [x] 11.1.3 `find_all_links(content)` - Combine WikiLinks and Markdown links
+  - [x] 11.2 Implement link resolution
+    - [x] 11.2.1 `resolve_link(link_text, current_file_dir)` - Convert link text to absolute file path
+    - [x] 11.2.2 For WikiLinks: search in root_dir for matching filename (with or without `.md`)
+    - [x] 11.2.3 For Markdown links: resolve relative paths from current file location
+  - [x] 11.3 Implement link following (integrate with Neovim's `gf` or custom command)
+    - [x] 11.3.1 Get link under cursor
+    - [x] 11.3.2 Resolve link to file path
+    - [x] 11.3.3 Open file in buffer
 
-- [ ] 12.0 Automatic Link Renaming on File Rename
-  - [ ] 12.1 Implement file rename detection in `lua/zournal/links.lua`
-    - [ ] 12.1.1 Create autocommand or API hook for `BufFilePost` or similar rename event
-    - [ ] 12.1.2 Detect old and new filenames
-  - [ ] 12.2 Implement link update logic
-    - [ ] 12.2.1 `update_links_in_file(file_path, old_name, new_name)` - Find and replace all occurrences
-    - [ ] 12.2.2 Handle WikiLinks: `[[old_name]]` → `[[new_name]]` (with or without `.md`)
-    - [ ] 12.2.3 Handle Markdown links: `[text](path/old_name.md)` → `[text](path/new_name.md)`
-  - [ ] 12.3 Implement batch update across journal
-    - [ ] 12.3.1 `update_all_links(old_name, new_name)` - Find all files in `root_dir`
-    - [ ] 12.3.2 Call `update_links_in_file()` for each file
-    - [ ] 12.3.3 Show progress or summary to user
-  - [ ] 12.4 Register rename hook
-    - [ ] 12.4.1 Listen for file rename events in Neovim
-    - [ ] 12.4.2 Trigger `update_all_links()` when file in `root_dir` is renamed
+- [x] 12.0 Automatic Link Renaming on File Rename
+  - [x] 12.1 Implement file rename detection in `lua/zournal/links.lua`
+    - [x] 12.1.1 Create autocommand or API hook for `BufFilePost` or similar rename event
+    - [x] 12.1.2 Detect old and new filenames
+  - [x] 12.2 Implement link update logic
+    - [x] 12.2.1 `update_links_in_file(file_path, old_name, new_name)` - Find and replace all occurrences
+    - [x] 12.2.2 Handle WikiLinks: `[[old_name]]` → `[[new_name]]` (with or without `.md`)
+    - [x] 12.2.3 Handle Markdown links: `[text](path/old_name.md)` → `[text](path/new_name.md)`
+  - [x] 12.3 Implement batch update across journal
+    - [x] 12.3.1 `update_all_links(old_name, new_name)` - Find all files in `root_dir`
+    - [x] 12.3.2 Call `update_links_in_file()` for each file
+    - [x] 12.3.3 Show progress or summary to user
+  - [x] 12.4 Register rename hook
+    - [x] 12.4.1 Listen for file rename events in Neovim
+    - [x] 12.4.2 Trigger `update_all_links()` when file in `root_dir` is renamed
 
-- [ ] 13.0 Telescope Integration - Zettelkasten Relations
-  - [ ] 13.1 Implement relations picker in `lua/zournal/telescope/relations.lua`
-    - [ ] 13.1.1 Get current file's zid
-    - [ ] 13.1.2 Find parent, siblings, and children using zettelkasten module
-    - [ ] 13.1.3 Build Telescope picker entries:
-      - [ ] 13.1.3.1 Entry display format: `[Relationship Type] Filename - First line preview`
-      - [ ] 13.1.3.2 Relationship type: "Parent", "Sibling", "Child"
-      - [ ] 13.1.3.3 Extract first line of content for preview
-    - [ ] 13.1.4 Configure Telescope picker with full preview pane
-    - [ ] 13.1.5 On selection, open target file in buffer
-  - [ ] 13.2 Handle edge cases
-    - [ ] 13.2.1 No parent (root note): Show message or exclude from picker
-    - [ ] 13.2.2 No siblings: Show only parent and children
-    - [ ] 13.2.3 No children: Show only parent and siblings
-    - [ ] 13.2.4 File without zid: Show helpful error
+- [x] 13.0 Telescope Integration - Zettelkasten Relations
+  - [x] 13.1 Implement relations picker in `lua/zournal/telescope/relations.lua`
+    - [x] 13.1.1 Get current file's zid
+    - [x] 13.1.2 Find parent, siblings, and children using zettelkasten module
+    - [x] 13.1.3 Build Telescope picker entries:
+      - [x] 13.1.3.1 Entry display format: `[Relationship Type] Filename - First line preview`
+      - [x] 13.1.3.2 Relationship type: "Parent", "Sibling", "Child"
+      - [x] 13.1.3.3 Extract first line of content for preview
+    - [x] 13.1.4 Configure Telescope picker with full preview pane
+    - [x] 13.1.5 On selection, open target file in buffer
+  - [x] 13.2 Handle edge cases
+    - [x] 13.2.1 No parent (root note): Show message or exclude from picker
+    - [x] 13.2.2 No siblings: Show only parent and children
+    - [x] 13.2.3 No children: Show only parent and siblings
+    - [x] 13.2.4 File without zid: Show helpful error
 
-- [ ] 14.0 Telescope Integration - Link Navigation
-  - [ ] 14.1 Implement link picker in `lua/zournal/telescope/links.lua`
-    - [ ] 14.1.1 Get current file content
-    - [ ] 14.1.2 Find all links (WikiLinks + Markdown links) using link parsing module
-    - [ ] 14.1.3 Resolve each link to file path
-    - [ ] 14.1.4 Build Telescope picker entries:
-      - [ ] 14.1.4.1 Entry display format: `Link text → Target filename - First line preview`
-      - [ ] 14.1.4.2 Extract first line of target file for preview
-    - [ ] 14.1.5 Configure Telescope picker with full preview pane
-    - [ ] 14.1.6 On selection, open target file in buffer (optionally jump to line if tag reference)
-  - [ ] 14.2 Handle broken links
-    - [ ] 14.2.1 Show broken links in picker with indicator (e.g., "[BROKEN]")
-    - [ ] 14.2.2 Prevent opening non-existent files
+- [x] 14.0 Telescope Integration - Link Navigation
+  - [x] 14.1 Implement link picker in `lua/zournal/telescope/links.lua`
+    - [x] 14.1.1 Get current file content
+    - [x] 14.1.2 Find all links (WikiLinks + Markdown links) using link parsing module
+    - [x] 14.1.3 Resolve each link to file path
+    - [x] 14.1.4 Build Telescope picker entries:
+      - [x] 14.1.4.1 Entry display format: `Link text → Target filename - First line preview`
+      - [x] 14.1.4.2 Extract first line of target file for preview
+    - [x] 14.1.5 Configure Telescope picker with full preview pane
+    - [x] 14.1.6 On selection, open target file in buffer (optionally jump to line if tag reference)
+  - [x] 14.2 Handle broken links
+    - [x] 14.2.1 Show broken links in picker with indicator (e.g., "[BROKEN]")
+    - [x] 14.2.2 Prevent opening non-existent files
 
 - [x] 15.0 Jump to Date Functionality
   - [x] 15.1 Implement `jump_to_date(date_string)` in `lua/zournal/journal.lua`
@@ -274,27 +274,27 @@ This task list guides the implementation of zournal.nvim based on PRD.md.
     - [x] 15.1.4 If not found, try monthly journal (using `monthly_format`)
     - [x] 15.1.5 If file exists, open in buffer
     - [x] 15.1.6 If no journal found, show error message
-  - [ ] 15.2 Create command `:ZournalJumpToDate` that accepts date argument
-    - [ ] 15.2.1 Parse command args to extract date
-    - [ ] 15.2.2 Call `jump_to_date()` with parsed date
-  - [ ] 15.3 Optionally create date picker using Telescope or vim.ui.input
+  - [x] 15.2 Create command `:ZournalJumpToDate` that accepts date argument
+    - [x] 15.2.1 Parse command args to extract date
+    - [x] 15.2.2 Call `jump_to_date()` with parsed date
+  - [x] 15.3 Optionally create date picker using Telescope or vim.ui.input
 
-- [ ] 16.0 Command Registration
-  - [ ] 16.1 Create `plugin/zournal.vim` with all command definitions
-    - [ ] 16.1.1 `:ZournalDailyJournal` → calls `require('zournal.journal').create_daily_journal()`
-    - [ ] 16.1.2 `:ZournalWeeklyJournal` → calls `require('zournal.journal').create_weekly_journal()`
-    - [ ] 16.1.3 `:ZournalMonthlyJournal` → calls `require('zournal.journal').create_monthly_journal()`
-    - [ ] 16.1.4 `:ZournalInbox` → calls `require('zournal.journal').create_inbox_note()`
-    - [ ] 16.1.5 `:ZournalNewChild` → calls `require('zournal.zettelkasten').create_child_note()`
-    - [ ] 16.1.6 `:ZournalNewSibling` → calls `require('zournal.zettelkasten').create_sibling_note()`
-    - [ ] 16.1.7 `:ZournalAddParent` → calls `require('zournal.zettelkasten').add_parent_relationship()`
-    - [ ] 16.1.8 `:ZournalRelations` → calls `require('zournal.telescope.relations').pick_relations()`
-    - [ ] 16.1.9 `:ZournalTagLine` → calls `require('zournal.tags').tag_current_line()`
-    - [ ] 16.1.10 `:ZournalCopyTag` → calls `require('zournal.tags').copy_tag_from_line()`
-    - [ ] 16.1.11 `:ZournalJumpToDate` → calls `require('zournal.journal').jump_to_date()` with args
-    - [ ] 16.1.12 `:ZournalLinks` (optional) → calls `require('zournal.telescope.links').pick_links()`
-  - [ ] 16.2 Use `vim.api.nvim_create_user_command()` for command registration (Lua alternative)
-  - [ ] 16.3 Ensure commands are only available after plugin is loaded
+- [x] 16.0 Command Registration
+  - [x] 16.1 Create `plugin/zournal.vim` with all command definitions
+    - [x] 16.1.1 `:ZournalDailyJournal` → calls `require('zournal.journal').create_daily_journal()`
+    - [x] 16.1.2 `:ZournalWeeklyJournal` → calls `require('zournal.journal').create_weekly_journal()`
+    - [x] 16.1.3 `:ZournalMonthlyJournal` → calls `require('zournal.journal').create_monthly_journal()`
+    - [x] 16.1.4 `:ZournalInbox` → calls `require('zournal.journal').create_inbox_note()`
+    - [x] 16.1.5 `:ZournalNewChild` → calls `require('zournal.zettelkasten').create_child_note()`
+    - [x] 16.1.6 `:ZournalNewSibling` → calls `require('zournal.zettelkasten').create_sibling_note()`
+    - [x] 16.1.7 `:ZournalAddParent` → calls `require('zournal.zettelkasten').add_parent_relationship()`
+    - [x] 16.1.8 `:ZournalRelations` → calls `require('zournal.telescope.relations').pick_relations()`
+    - [x] 16.1.9 `:ZournalTagLine` → calls `require('zournal.tags').tag_current_line()`
+    - [x] 16.1.10 `:ZournalCopyTag` → calls `require('zournal.tags').copy_tag_from_line()`
+    - [x] 16.1.11 `:ZournalJumpToDate` → calls `require('zournal.journal').jump_to_date()` with args
+    - [x] 16.1.12 `:ZournalLinks` (optional) → calls `require('zournal.telescope.links').pick_links()`
+  - [x] 16.2 Use `vim.api.nvim_create_user_command()` for command registration (Lua alternative)
+  - [x] 16.3 Ensure commands are only available after plugin is loaded
 
 - [ ] 17.0 Documentation and README
   - [ ] 17.1 Create `README.md` with plugin overview

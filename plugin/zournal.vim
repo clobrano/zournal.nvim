@@ -5,3 +5,26 @@ if exists('g:loaded_zournal')
   finish
 endif
 let g:loaded_zournal = 1
+
+" Journal commands
+command! ZournalDailyJournal lua require('zournal.journal').create_daily_journal()
+command! ZournalWeeklyJournal lua require('zournal.journal').create_weekly_journal()
+command! ZournalMonthlyJournal lua require('zournal.journal').create_monthly_journal()
+command! ZournalInbox lua require('zournal.journal').create_inbox_note()
+
+" Zettelkasten commands
+command! ZournalNewChild lua require('zournal.zettelkasten').create_child_note()
+command! ZournalNewSibling lua require('zournal.zettelkasten').create_sibling_note()
+command! ZournalAddParent lua require('zournal.zettelkasten').add_parent_relationship()
+
+" Telescope integration commands
+command! ZournalRelations lua require('zournal.telescope.relations').pick_relations()
+command! ZournalLinks lua require('zournal.telescope.links').pick_links()
+
+" Tagging commands
+command! ZournalTagLine lua require('zournal.tags').tag_current_line()
+command! ZournalCopyTag lua require('zournal.tags').copy_tag_from_line()
+
+" Navigation commands
+command! -nargs=? ZournalJumpToDate lua require('zournal.journal').jump_to_date(<f-args>)
+command! ZournalFollowLink lua require('zournal.links').follow_link()
