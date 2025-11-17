@@ -174,22 +174,22 @@ This task list guides the implementation of zournal.nvim based on PRD.md.
     - [x] 8.4.1 Display helpful error message when zid is required but missing
     - [x] 8.4.2 Explain how to manually add zid to frontmatter
 
-- [ ] 9.0 Line Tagging System with UUID
-  - [ ] 9.1 Implement UUID generation in `lua/zournal/tags.lua`
-    - [ ] 9.1.1 `generate_uuid()` - Call system `uuidgen` command or use Lua uuid library
-    - [ ] 9.1.2 **CRITICAL**: Prepend `z` to UUID for Neovim tag compatibility
-    - [ ] 9.1.3 Return formatted tag: `#z<uuid>` (e.g., `#za3f9b2c1-4d5e-6f7a-8b9c-0d1e2f3a4b5c`)
-  - [ ] 9.2 Implement `tag_current_line()`
-    - [ ] 9.2.1 Get current line content
-    - [ ] 9.2.2 Generate new UUID tag
-    - [ ] 9.2.3 Append tag to end of line (with space separator)
-    - [ ] 9.2.4 Update line in buffer
-  - [ ] 9.3 Implement `copy_tag_from_line()`
-    - [ ] 9.3.1 Get current line content
-    - [ ] 9.3.2 Parse line to find tag pattern `#z[0-9a-f-]+`
-    - [ ] 9.3.3 Extract UUID tag (error if not found)
-    - [ ] 9.3.4 Copy tag to system clipboard using `vim.fn.setreg('+', tag)`
-    - [ ] 9.3.5 Show confirmation message to user
+- [x] 9.0 Line Tagging System with UUID
+  - [x] 9.1 Implement UUID generation in `lua/zournal/tags.lua`
+    - [x] 9.1.1 `generate_uuid()` - Call system `uuidgen` command or use Lua uuid library
+    - [x] 9.1.2 **CRITICAL**: Prepend `z` to UUID for Neovim tag compatibility
+    - [x] 9.1.3 Return formatted tag: `#z<uuid>` (e.g., `#za3f9b2c1-4d5e-6f7a-8b9c-0d1e2f3a4b5c`)
+  - [x] 9.2 Implement `tag_current_line()`
+    - [x] 9.2.1 Get current line content
+    - [x] 9.2.2 Generate new UUID tag
+    - [x] 9.2.3 Append tag to end of line (with space separator)
+    - [x] 9.2.4 Update line in buffer
+  - [x] 9.3 Implement `copy_tag_from_line()`
+    - [x] 9.3.1 Get current line content
+    - [x] 9.3.2 Parse line to find tag pattern `#z[0-9a-f-]+`
+    - [x] 9.3.3 Extract UUID tag (error if not found)
+    - [x] 9.3.4 Copy tag to system clipboard using `vim.fn.setreg('+', tag)`
+    - [x] 9.3.5 Show confirmation message to user
 
 - [ ] 10.0 Tag Concealment (Original vs Reference)
   - [ ] 10.1 Implement concealment syntax in `lua/zournal/tags.lua`
