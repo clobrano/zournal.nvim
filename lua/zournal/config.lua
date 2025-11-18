@@ -27,6 +27,11 @@ local workspace_defaults = {
   -- Concealment symbols for tags
   tag_symbol = "📌",
   reference_symbol = "→📌",
+
+  -- Week numbering system
+  -- "iso8601": Week containing first Thursday of the year is week 1 (standard %V)
+  -- "gregorian": Week containing January 1st is week 1
+  week_numbering_system = "iso8601",
 }
 
 -- All configured workspaces (name -> config)

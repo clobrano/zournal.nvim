@@ -97,12 +97,65 @@ function M.format_date(format_string, date)
   return os.date(format_string, date)
 end
 
---- Get ISO week number for a date
----@param date number|nil Unix timestamp (defaults to current time)
+--- Calculate ISO 8601 week number
+--- Week 1 is the week containing the first Thursday of the year
+---@param date number Unix timestamp
 ---@return number week_number
-function M.get_iso_week(date)
-  date = date or os.time()
+local function calculate_iso8601_week(date)
+  -- Use system's %V which implements ISO 8601
   return tonumber(os.date("%V", date))
+end
+
+--- Calculate Gregorian week number
+--- Week 1 is the week containing January 1st
+---@param date number Unix timestamp
+---@return number week_number
+local function calculate_gregorian_week(date)
+  local date_info = os.date("*t", date)
+
+  -- Get January 1st of the same year
+  local jan1 = os.time({
+    year = date_info.year,
+    month = 1,
+    day = 1,
+    hour = 0,
+    min = 0,
+    sec = 0,
+  })
+
+  -- Calculate day of year (1-366)
+  local day_of_year = tonumber(os.date("%j", date))
+
+  -- Get day of week for Jan 1 (1=Monday, 7=Sunday)
+  local jan1_wday = tonumber(os.date("%u", jan1))
+
+  -- Calculate week number:
+  -- Days from Jan 1 + (day of week offset for Jan 1), divided by 7, rounded up
+  local week = math.ceil((day_of_year + jan1_wday - 1) / 7)
+
+  return week
+end
+
+--- Get week number for a date using configured system
+---@param date number|nil Unix timestamp (defaults to current time)
+---@param system string|nil Week numbering system ("iso8601" or "gregorian", defaults to config)
+---@return number week_number
+function M.get_iso_week(date, system)
+  date = date or os.time()
+
+  -- Get system from config if not provided
+  if not system then
+    local config = require("zournal.config")
+    local cfg = config.get()
+    system = cfg.week_numbering_system or "iso8601"
+  end
+
+  if system == "gregorian" then
+    return calculate_gregorian_week(date)
+  else
+    -- Default to ISO 8601
+    return calculate_iso8601_week(date)
+  end
 end
 
 --- Parse date string to date object (timestamp)

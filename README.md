@@ -170,6 +170,36 @@ Each workspace supports the following options:
 | `inbox_dir` | `"Resources/"` | Directory for inbox notes (relative to `root_dir`) |
 | `tag_symbol` | `"📌"` | Symbol for concealed tags |
 | `reference_symbol` | `"→📌"` | Symbol for concealed reference tags |
+| `week_numbering_system` | `"iso8601"` | Week numbering system: `"iso8601"` (week containing first Thursday) or `"gregorian"` (week containing Jan 1) |
+
+### Week Numbering Systems
+
+zournal.nvim supports two different week numbering systems:
+
+**ISO 8601 (default)**:
+- Week 1 is the week containing the first Thursday of the year
+- Weeks start on Monday
+- Standard international format (`%V` in strftime)
+- Used in most European countries, international business
+
+**Gregorian**:
+- Week 1 is the week containing January 1st
+- Weeks start on Monday
+- Some calendars (particularly Italian calendars) may show week numbers using this system
+
+To change the week numbering system, add it to your workspace configuration:
+
+```lua
+require('zournal').setup({
+  workspaces = {
+    personal = {
+      root_dir = "~/notes/",
+      week_numbering_system = "gregorian",  -- or "iso8601" (default)
+      -- ... other options
+    },
+  },
+})
+```
 
 ### Workspace Auto-Detection
 
