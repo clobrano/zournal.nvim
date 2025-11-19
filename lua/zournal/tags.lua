@@ -49,6 +49,7 @@ function M.add_tag()
 end
 
 -- Copy tag reference from current line to clipboard
+-- If the line doesn't have a tag, adds one first
 -- Extracts UUID from current line and copies it as {zref<uuid>} to clipboard
 function M.copy_tag_reference()
   -- Get current line content
@@ -58,9 +59,17 @@ function M.copy_tag_reference()
   -- UUID format: hex digits and hyphens, ending with }
   local uuid = line_content:match("{z[tr][ea][fg]([0-9a-f%-]+)}")
 
+  -- If no tag found, add one first
   if not uuid then
-    vim.notify("No tag found on current line", vim.log.levels.ERROR)
-    return
+    M.add_tag()
+    -- Re-read the line to get the newly added tag
+    line_content = vim.api.nvim_get_current_line()
+    uuid = line_content:match("{z[tr][ea][fg]([0-9a-f%-]+)}")
+
+    -- If still no tag (add_tag failed), exit
+    if not uuid then
+      return
+    end
   end
 
   -- Create reference tag format
