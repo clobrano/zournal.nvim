@@ -143,14 +143,14 @@ function M.setup_concealment()
         return
       end
 
-      -- Set up syntax concealment for tags (conceal completely, no replacement)
-      -- Original tags: {ztag<uuid>} -> concealed
-      -- Reference tags: {zref<uuid>} -> concealed
+      -- Set up syntax concealment for tags
+      -- Original tags: {ztag<uuid>} -> concealed (hidden)
+      -- Reference tags: {zref<uuid>} -> visible (NOT concealed)
       vim.cmd([[
         syntax clear ZournalTagOriginal
         syntax clear ZournalTagReference
         syntax match ZournalTagOriginal /{ztag[0-9a-f-]\+}/ conceal
-        syntax match ZournalTagReference /{zref[0-9a-f-]\+}/ conceal
+        syntax match ZournalTagReference /{zref[0-9a-f-]\+}/
       ]])
 
       -- Ensure concealment is enabled (respect user's conceallevel setting)

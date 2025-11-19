@@ -77,19 +77,11 @@ function M.update_virtual_text_all()
           local content = original.content
           local virt_text = string.format(config.virtual_text_format, content)
 
-          -- Find the position of the {zref} tag in the line
-          local line_content = ref.line_content
-          local tag_pattern = "{zref" .. ref.uuid .. "}"
-          local start_pos, end_pos = line_content:find(tag_pattern, 1, true)
-
-          if start_pos and end_pos then
-            -- Add virtual text inline after the tag with background
-            -- string.find() returns 1-based positions, extmark needs 0-based column
-            vim.api.nvim_buf_set_extmark(bufnr, ns, ref.line_num - 1, end_pos, {
-              virt_text = {{" " .. virt_text, "ZournalVirtualText"}},
-              virt_text_pos = 'inline',
-            })
-          end
+          -- Add virtual text at end of line
+          vim.api.nvim_buf_set_extmark(bufnr, ns, ref.line_num - 1, 0, {
+            virt_text = {{virt_text, "ZournalVirtualText"}},
+            virt_text_pos = 'eol',
+          })
         end
       end
     end
@@ -134,18 +126,11 @@ function M.update_virtual_text(bufnr)
         local content = original.content
         local virt_text = string.format(config.virtual_text_format, content)
 
-        -- Find the position of the {zref} tag in the line
-        local tag_pattern = "{zref" .. uuid .. "}"
-        local start_pos, end_pos = line_content:find(tag_pattern, 1, true)
-
-        if start_pos and end_pos then
-          -- Add virtual text inline after the tag with background
-          -- string.find() returns 1-based positions, extmark needs 0-based column
-          vim.api.nvim_buf_set_extmark(bufnr, ns, line_num - 1, end_pos, {
-            virt_text = {{" " .. virt_text, "ZournalVirtualText"}},
-            virt_text_pos = 'inline',
-          })
-        end
+        -- Add virtual text at end of line
+        vim.api.nvim_buf_set_extmark(bufnr, ns, line_num - 1, 0, {
+          virt_text = {{virt_text, "ZournalVirtualText"}},
+          virt_text_pos = 'eol',
+        })
       end
     end
   end
