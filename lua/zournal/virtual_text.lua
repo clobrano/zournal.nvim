@@ -73,18 +73,11 @@ function M.update_virtual_text_all()
         local original = find_original_content(ref.uuid)
 
         if original and original.content ~= "" then
-          -- Format the virtual text
+          -- Format the virtual text (no truncation)
           local content = original.content
-
-          -- Truncate if too long
-          if #content > config.virtual_text_max_length then
-            content = content:sub(1, config.virtual_text_max_length - 3) .. "..."
-          end
-
-          -- Apply format string
           local virt_text = string.format(config.virtual_text_format, content)
 
-          -- Add virtual text at end of line
+          -- Add virtual text at end of line with background
           vim.api.nvim_buf_set_extmark(bufnr, ns, ref.line_num - 1, 0, {
             virt_text = {{" " .. virt_text, "ZournalVirtualText"}},
             virt_text_pos = 'eol',
@@ -129,18 +122,11 @@ function M.update_virtual_text(bufnr)
       local original = find_original_content(uuid)
 
       if original and original.content ~= "" then
-        -- Format the virtual text
+        -- Format the virtual text (no truncation)
         local content = original.content
-
-        -- Truncate if too long
-        if #content > config.virtual_text_max_length then
-          content = content:sub(1, config.virtual_text_max_length - 3) .. "..."
-        end
-
-        -- Apply format string
         local virt_text = string.format(config.virtual_text_format, content)
 
-        -- Add virtual text at end of line
+        -- Add virtual text at end of line with background
         vim.api.nvim_buf_set_extmark(bufnr, ns, line_num - 1, 0, {
           virt_text = {{" " .. virt_text, "ZournalVirtualText"}},
           virt_text_pos = 'eol',

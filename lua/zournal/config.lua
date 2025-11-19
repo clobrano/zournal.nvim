@@ -31,7 +31,6 @@ local workspace_defaults = {
   -- Virtual text settings
   virtual_text_enabled = false,  -- Enable virtual text showing original tag content
   virtual_text_format = '→ "%s"',  -- Format string for virtual text (%s = original line content)
-  virtual_text_max_length = 60,  -- Maximum length of virtual text before truncation
 
   -- Tag cache settings
   tag_cache_ttl = 300,  -- Cache time-to-live in seconds (5 minutes)

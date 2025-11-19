@@ -168,7 +168,32 @@ function M.setup_signs()
   -- Define highlight groups for tags
   vim.api.nvim_set_hl(0, "ZournalTagOriginal", { link = "Tag", default = true })
   vim.api.nvim_set_hl(0, "ZournalTagReference", { link = "Comment", default = true })
-  vim.api.nvim_set_hl(0, "ZournalVirtualText", { link = "NonText", default = true })
+
+  -- Virtual text: Use Comment foreground with a subtle background
+  -- Get Comment and Normal colors
+  local comment_hl = vim.api.nvim_get_hl(0, { name = "Comment" })
+  local normal_hl = vim.api.nvim_get_hl(0, { name = "Normal" })
+
+  -- Helper function to blend colors (10% comment color, 90% background)
+  local function blend_color(fg_color, bg_color)
+    if not fg_color or not bg_color then
+      return nil
+    end
+    local r1, g1, b1 = bit.rshift(fg_color, 16), bit.band(bit.rshift(fg_color, 8), 0xFF), bit.band(fg_color, 0xFF)
+    local r2, g2, b2 = bit.rshift(bg_color, 16), bit.band(bit.rshift(bg_color, 8), 0xFF), bit.band(bg_color, 0xFF)
+    local r = math.floor(r1 * 0.15 + r2 * 0.85)
+    local g = math.floor(g1 * 0.15 + g2 * 0.85)
+    local b = math.floor(b1 * 0.15 + b2 * 0.85)
+    return bit.bor(bit.lshift(r, 16), bit.lshift(g, 8), b)
+  end
+
+  local bg_blend = blend_color(comment_hl.fg, normal_hl.bg or 0x000000)
+
+  vim.api.nvim_set_hl(0, "ZournalVirtualText", {
+    fg = comment_hl.fg,
+    bg = bg_blend and string.format("#%06x", bg_blend) or nil,
+    default = true
+  })
 
   -- Define signs for tags
   local tag_sign = config.tag_sign or "Z"
