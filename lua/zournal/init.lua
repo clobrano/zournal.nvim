@@ -54,6 +54,9 @@ function M.setup(opts)
   -- Setup tag concealment
   M.tags.setup_concealment()
 
+  -- Setup tag signs
+  M.tags.setup_signs()
+
   -- Setup automatic link renaming
   M.links.setup_auto_rename()
 

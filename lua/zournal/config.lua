@@ -24,9 +24,9 @@ local workspace_defaults = {
   -- Inbox directory (relative to root_dir)
   inbox_dir = "Resources/",
 
-  -- Concealment symbols for tags
-  tag_symbol = "📌",
-  reference_symbol = "→",
+  -- Sign column indicators for tags
+  tag_sign = "Z",
+  reference_sign = "Z",
 
   -- Week numbering system
   -- "iso8601": Week containing first Thursday of the year is week 1 (standard %V)

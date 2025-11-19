@@ -74,7 +74,7 @@ function M.copy_tag_reference()
 end
 
 -- Setup tag concealment for markdown files in journal directory
--- Conceals UUID tags with symbols from config
+-- Conceals UUID tags completely (no replacement character)
 function M.setup_concealment()
   local config = require('zournal.config').get()
 
@@ -94,24 +94,84 @@ function M.setup_concealment()
         return
       end
 
-      -- Set up syntax concealment for tags
-      -- Original tags: {ztag<uuid>} -> concealed with tag_symbol (📌)
-      -- Reference tags: {zref<uuid>} -> concealed with reference_symbol (→)
-      local tag_symbol = config.tag_symbol or "📌"
-      local ref_symbol = config.reference_symbol or "→"
-
-      vim.cmd(string.format([[
-        syntax match ZournalTagOriginal /{ztag[0-9a-f-]\+}/ conceal cchar=%s
-      ]], tag_symbol))
-
-      vim.cmd(string.format([[
-        syntax match ZournalTagReference /{zref[0-9a-f-]\+}/ conceal cchar=%s
-      ]], ref_symbol))
+      -- Set up syntax concealment for tags (conceal completely, no replacement)
+      -- Original tags: {ztag<uuid>} -> concealed
+      -- Reference tags: {zref<uuid>} -> concealed
+      vim.cmd([[
+        syntax clear ZournalTagOriginal
+        syntax clear ZournalTagReference
+        syntax match ZournalTagOriginal /{ztag[0-9a-f-]\+}/ conceal
+        syntax match ZournalTagReference /{zref[0-9a-f-]\+}/ conceal
+      ]])
 
       -- Ensure concealment is enabled (respect user's conceallevel setting)
       if vim.o.conceallevel == 0 then
         vim.wo.conceallevel = 2
       end
+    end,
+  })
+end
+
+-- Setup signs for tag indicators in sign column
+function M.setup_signs()
+  local config = require('zournal.config').get()
+
+  -- Define signs for tags
+  local tag_sign = config.tag_sign or "Z"
+  local ref_sign = config.reference_sign or "Z"
+
+  vim.fn.sign_define("ZournalTagOriginal", {
+    text = tag_sign,
+    texthl = "ZournalTagOriginal",
+  })
+
+  vim.fn.sign_define("ZournalTagReference", {
+    text = ref_sign,
+    texthl = "ZournalTagReference",
+  })
+
+  -- Create autocommand group for tag signs
+  local group = vim.api.nvim_create_augroup('ZournalTagSigns', { clear = true })
+
+  -- Function to update signs for a buffer
+  local function update_signs(bufnr)
+    local filepath = vim.api.nvim_buf_get_name(bufnr)
+
+    -- Only apply signs to files in the journal directory
+    local root_dir = vim.fn.expand(config.root_dir)
+    if not filepath:match('^' .. vim.pesc(root_dir)) then
+      return
+    end
+
+    -- Clear existing tag signs for this buffer
+    vim.fn.sign_unplace("zournal_tags", { buffer = bufnr })
+
+    -- Scan buffer lines for tags
+    local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+    for line_num, line_content in ipairs(lines) do
+      -- Check for original tag
+      if line_content:match("{ztag[0-9a-f%-]+}") then
+        vim.fn.sign_place(0, "zournal_tags", "ZournalTagOriginal", bufnr, {
+          lnum = line_num,
+          priority = 10,
+        })
+      -- Check for reference tag
+      elseif line_content:match("{zref[0-9a-f%-]+}") then
+        vim.fn.sign_place(0, "zournal_tags", "ZournalTagReference", bufnr, {
+          lnum = line_num,
+          priority = 10,
+        })
+      end
+    end
+  end
+
+  -- Update signs when buffer is entered or changed
+  vim.api.nvim_create_autocmd({'BufEnter', 'BufWinEnter', 'TextChanged', 'TextChangedI'}, {
+    group = group,
+    pattern = '*.md',
+    callback = function()
+      local bufnr = vim.api.nvim_get_current_buf()
+      update_signs(bufnr)
     end,
   })
 end
