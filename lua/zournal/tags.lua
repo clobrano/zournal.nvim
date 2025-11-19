@@ -82,6 +82,46 @@ function M.copy_tag_reference()
   vim.notify("Tag reference copied to clipboard: " .. ref_tag, vim.log.levels.INFO)
 end
 
+-- Follow a reference tag to jump to the original tag location
+-- Extracts UUID from current line and navigates to the file/line with the original tag
+function M.follow_tag()
+  -- Get current line content
+  local line_content = vim.api.nvim_get_current_line()
+
+  -- Parse line to find reference tag {zref<uuid>}
+  local uuid = line_content:match("{zref([0-9a-f%-]+)}")
+
+  if not uuid then
+    vim.notify("No reference tag found on current line", vim.log.levels.WARN)
+    return
+  end
+
+  -- Use cache to find original tag location
+  local tag_cache = require('zournal.tag_cache')
+  local original = tag_cache.get_original_content(uuid)
+
+  if not original then
+    vim.notify("Original tag not found for UUID: " .. uuid, vim.log.levels.ERROR)
+    return
+  end
+
+  -- Open the file containing the original tag
+  vim.cmd('edit ' .. vim.fn.fnameescape(original.filepath))
+
+  -- Jump to the line with the original tag
+  vim.api.nvim_win_set_cursor(0, {original.line_num, 0})
+
+  -- Center the line in the window
+  vim.cmd('normal! zz')
+
+  vim.notify(
+    string.format("Jumped to original tag at %s:%d",
+      vim.fn.fnamemodify(original.filepath, ':~:.'),
+      original.line_num),
+    vim.log.levels.INFO
+  )
+end
+
 -- Setup tag concealment for markdown files in journal directory
 -- Conceals UUID tags completely (no replacement character)
 function M.setup_concealment()

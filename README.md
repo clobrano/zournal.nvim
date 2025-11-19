@@ -310,6 +310,7 @@ Content here...
 | `:ZournalTagAdd` | Add a tag (`{ztag<uuid>}`) to current line |
 | `:ZournalTagCopy` | Copy tag from current line as reference (`{zref<uuid>}`) to clipboard |
 | `:ZournalTagReferences` | Show all occurrences of tag on current line (original + references) |
+| `:ZournalTagFollow` | Jump from reference tag to original tag location |
 | `:ZournalVirtualTextShow` | Show virtual text in current buffer for all references |
 | `:ZournalVirtualTextShowAll` | Show virtual text across ALL loaded buffers |
 | `:ZournalVirtualTextClear` | Clear virtual text from current buffer |
@@ -426,6 +427,10 @@ Content here...
 " Paste in another file to reference that line
 " Reference tag is also concealed, sign column shows "Z"
 
+" Jump to original tag from reference (cursor on reference line)
+:ZournalTagFollow
+" Opens file with original tag and jumps to that line
+
 " Show original content for reference tags (virtual text)
 :ZournalVirtualTextShow
 " Reference line now displays: → "Some important text" (virtual text at end of line)
@@ -481,6 +486,7 @@ vim.keymap.set('n', '<leader>zr', '<cmd>ZournalRelations<cr>', { desc = 'Relatio
 vim.keymap.set('n', '<leader>zt', '<cmd>ZournalTagAdd<cr>', { desc = 'Add Tag' })
 vim.keymap.set('n', '<leader>zy', '<cmd>ZournalTagCopy<cr>', { desc = 'Copy Tag Reference' })
 vim.keymap.set('n', '<leader>zT', '<cmd>ZournalTagReferences<cr>', { desc = 'Tag References' })
+vim.keymap.set('n', '<leader>zf', '<cmd>ZournalTagFollow<cr>', { desc = 'Follow Tag to Original' })
 
 -- Navigation
 vim.keymap.set('n', '<leader>zl', '<cmd>ZournalLinks<cr>', { desc = 'Links' })

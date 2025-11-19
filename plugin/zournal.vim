@@ -25,6 +25,7 @@ command! ZournalLinks lua require('zournal.telescope.links').pick_links()
 command! ZournalTagAdd lua require('zournal.tags').add_tag()
 command! ZournalTagCopy lua require('zournal.tags').copy_tag_reference()
 command! ZournalTagReferences lua require('zournal.telescope.tag_references').pick_tag_references()
+command! ZournalTagFollow lua require('zournal.tags').follow_tag()
 
 " Virtual text commands
 command! ZournalVirtualTextShow lua require('zournal.virtual_text').update_virtual_text(0)
