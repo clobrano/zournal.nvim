@@ -177,6 +177,7 @@ Each workspace supports the following options:
 | `virtual_text_enabled` | `false` | Enable virtual text showing original tag content for references |
 | `virtual_text_format` | `'→ "%s"'` | Format string for virtual text (`%s` = original line content) |
 | `virtual_text_max_length` | `60` | Maximum length of virtual text before truncation |
+| `tag_cache_ttl` | `300` | Tag cache time-to-live in seconds (5 minutes) |
 | `week_numbering_system` | `"iso8601"` | Week numbering system: `"iso8601"` (week containing first Thursday) or `"gregorian"` (week containing Jan 1) |
 
 ### Week Numbering Systems
@@ -309,9 +310,13 @@ Content here...
 | `:ZournalTagAdd` | Add a tag (`{ztag<uuid>}`) to current line |
 | `:ZournalTagCopy` | Copy tag from current line as reference (`{zref<uuid>}`) to clipboard |
 | `:ZournalTagReferences` | Show all occurrences of tag on current line (original + references) |
-| `:ZournalVirtualTextShow` | Show virtual text displaying original tag content for all references |
+| `:ZournalVirtualTextShow` | Show virtual text in current buffer for all references |
+| `:ZournalVirtualTextShowAll` | Show virtual text across ALL loaded buffers |
 | `:ZournalVirtualTextClear` | Clear virtual text from current buffer |
 | `:ZournalVirtualTextToggle` | Toggle virtual text on/off for current buffer |
+| `:ZournalCacheClear` | Clear the tag cache |
+| `:ZournalCachePreload` | Preload cache by scanning all files |
+| `:ZournalCacheStats` | Show cache statistics (hits, misses, entries) |
 
 ### Navigation Commands
 
@@ -424,6 +429,13 @@ Content here...
 " Show original content for reference tags (virtual text)
 :ZournalVirtualTextShow
 " Reference line now displays: → "Some important text" (virtual text at end of line)
+
+" Show virtual text across ALL loaded buffers (uses cache)
+:ZournalVirtualTextShowAll
+
+" Check cache performance
+:ZournalCacheStats
+" Shows: {entries = 42, cache_hits = 127, cache_misses = 15}
 
 " Show all occurrences of this tag
 :ZournalTagReferences

@@ -33,6 +33,9 @@ local workspace_defaults = {
   virtual_text_format = '→ "%s"',  -- Format string for virtual text (%s = original line content)
   virtual_text_max_length = 60,  -- Maximum length of virtual text before truncation
 
+  -- Tag cache settings
+  tag_cache_ttl = 300,  -- Cache time-to-live in seconds (5 minutes)
+
   -- Week numbering system
   -- "iso8601": Week containing first Thursday of the year is week 1 (standard %V)
   -- "gregorian": Week containing January 1st is week 1

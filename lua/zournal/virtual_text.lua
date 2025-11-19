@@ -20,50 +20,11 @@ local function extract_uuid(tag_string)
   return tag_string:match("{z[tr][ea][fg]([0-9a-f%-]+)}")
 end
 
--- Find the original tag content for a given UUID
+-- Find the original tag content for a given UUID (uses cache)
 -- Returns: {content, filepath, line_num} or nil
 local function find_original_content(uuid)
-  local config = require('zournal.config').get()
-  local utils = require('zournal.utils')
-
-  -- Find all markdown files
-  local files = utils.find_files_with_pattern(config.root_dir, "%.md$")
-
-  local occurrences = {}
-
-  for _, filepath in ipairs(files) do
-    local content = utils.read_file(filepath)
-    if content then
-      local line_num = 1
-      for line in content:gmatch("[^\r\n]+") do
-        -- Look for original tag {ztag<uuid>}
-        local ztag_match = line:match("{ztag" .. vim.pesc(uuid) .. "}")
-
-        if ztag_match then
-          -- Found original tag - extract line content without the tag
-          local clean_content = line:gsub("{ztag" .. vim.pesc(uuid) .. "}", ""):match("^%s*(.-)%s*$")
-
-          table.insert(occurrences, {
-            content = clean_content,
-            filepath = filepath,
-            line_num = line_num,
-            -- Use file modification time for sorting (oldest = original)
-            mtime = vim.loop.fs_stat(filepath).mtime.sec,
-          })
-        end
-        line_num = line_num + 1
-      end
-    end
-  end
-
-  if #occurrences == 0 then
-    return nil
-  end
-
-  -- Sort by modification time (oldest first)
-  table.sort(occurrences, function(a, b) return a.mtime < b.mtime end)
-
-  return occurrences[1]
+  local tag_cache = require('zournal.tag_cache')
+  return tag_cache.get_original_content(uuid)
 end
 
 -- Clear all virtual text in a buffer
@@ -73,7 +34,68 @@ function M.clear_virtual_text(bufnr)
   vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
 end
 
--- Update virtual text for all reference tags in buffer
+-- Update virtual text for all reference tags across all files
+function M.update_virtual_text_all()
+  local config = require('zournal.config').get()
+  local tag_cache = require('zournal.tag_cache')
+
+  -- Check if virtual text is enabled
+  if not config.virtual_text_enabled then
+    return
+  end
+
+  local ns = init_namespace()
+
+  -- Find all reference tags across all files
+  local references = tag_cache.find_all_references()
+
+  -- Group references by file
+  local refs_by_file = {}
+  for _, ref in ipairs(references) do
+    if not refs_by_file[ref.filepath] then
+      refs_by_file[ref.filepath] = {}
+    end
+    table.insert(refs_by_file[ref.filepath], ref)
+  end
+
+  -- Update virtual text for each file
+  for filepath, file_refs in pairs(refs_by_file) do
+    -- Find buffer for this file (if loaded)
+    local bufnr = vim.fn.bufnr(filepath)
+
+    -- Only update if buffer is loaded
+    if bufnr ~= -1 and vim.api.nvim_buf_is_loaded(bufnr) then
+      -- Clear existing virtual text
+      vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
+
+      -- Add virtual text for each reference
+      for _, ref in ipairs(file_refs) do
+        local original = find_original_content(ref.uuid)
+
+        if original and original.content ~= "" then
+          -- Format the virtual text
+          local content = original.content
+
+          -- Truncate if too long
+          if #content > config.virtual_text_max_length then
+            content = content:sub(1, config.virtual_text_max_length - 3) .. "..."
+          end
+
+          -- Apply format string
+          local virt_text = string.format(config.virtual_text_format, content)
+
+          -- Add virtual text at end of line
+          vim.api.nvim_buf_set_extmark(bufnr, ns, ref.line_num - 1, 0, {
+            virt_text = {{" " .. virt_text, "ZournalVirtualText"}},
+            virt_text_pos = 'eol',
+          })
+        end
+      end
+    end
+  end
+end
+
+-- Update virtual text for current buffer only
 function M.update_virtual_text(bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
   local config = require('zournal.config').get()
@@ -103,7 +125,7 @@ function M.update_virtual_text(bufnr)
     local uuid = line_content:match("{zref([0-9a-f%-]+)}")
 
     if uuid then
-      -- Find the original tag content
+      -- Find the original tag content (uses cache)
       local original = find_original_content(uuid)
 
       if original and original.content ~= "" then

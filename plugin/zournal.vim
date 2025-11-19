@@ -28,8 +28,14 @@ command! ZournalTagReferences lua require('zournal.telescope.tag_references').pi
 
 " Virtual text commands
 command! ZournalVirtualTextShow lua require('zournal.virtual_text').update_virtual_text(0)
+command! ZournalVirtualTextShowAll lua require('zournal.virtual_text').update_virtual_text_all()
 command! ZournalVirtualTextClear lua require('zournal.virtual_text').clear_virtual_text(0)
 command! ZournalVirtualTextToggle lua require('zournal.virtual_text').toggle()
+
+" Tag cache commands
+command! ZournalCacheClear lua require('zournal.tag_cache').clear_cache()
+command! ZournalCachePreload lua require('zournal.tag_cache').preload_cache()
+command! ZournalCacheStats lua print(vim.inspect(require('zournal.tag_cache').get_stats()))
 
 " Navigation commands
 command! -nargs=? ZournalJumpToDate lua require('zournal.journal').jump_to_date(<f-args>)
