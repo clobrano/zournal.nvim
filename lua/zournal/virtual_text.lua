@@ -77,11 +77,18 @@ function M.update_virtual_text_all()
           local content = original.content
           local virt_text = string.format(config.virtual_text_format, content)
 
-          -- Add virtual text at end of line with background
-          vim.api.nvim_buf_set_extmark(bufnr, ns, ref.line_num - 1, 0, {
-            virt_text = {{" " .. virt_text, "ZournalVirtualText"}},
-            virt_text_pos = 'eol',
-          })
+          -- Find the position of the {zref} tag in the line
+          local line_content = ref.line_content
+          local tag_pattern = "{zref" .. vim.pesc(ref.uuid) .. "}"
+          local start_pos, end_pos = line_content:find(vim.pesc(tag_pattern))
+
+          if start_pos and end_pos then
+            -- Add virtual text inline after the tag with background
+            vim.api.nvim_buf_set_extmark(bufnr, ns, ref.line_num - 1, end_pos, {
+              virt_text = {{" " .. virt_text, "ZournalVirtualText"}},
+              virt_text_pos = 'inline',
+            })
+          end
         end
       end
     end
@@ -126,11 +133,17 @@ function M.update_virtual_text(bufnr)
         local content = original.content
         local virt_text = string.format(config.virtual_text_format, content)
 
-        -- Add virtual text at end of line with background
-        vim.api.nvim_buf_set_extmark(bufnr, ns, line_num - 1, 0, {
-          virt_text = {{" " .. virt_text, "ZournalVirtualText"}},
-          virt_text_pos = 'eol',
-        })
+        -- Find the position of the {zref} tag in the line
+        local tag_pattern = "{zref" .. vim.pesc(uuid) .. "}"
+        local start_pos, end_pos = line_content:find(vim.pesc(tag_pattern))
+
+        if start_pos and end_pos then
+          -- Add virtual text inline after the tag with background
+          vim.api.nvim_buf_set_extmark(bufnr, ns, line_num - 1, end_pos, {
+            virt_text = {{" " .. virt_text, "ZournalVirtualText"}},
+            virt_text_pos = 'inline',
+          })
+        end
       end
     end
   end
