@@ -26,7 +26,7 @@ local workspace_defaults = {
 
   -- Concealment symbols for tags
   tag_symbol = "📌",
-  reference_symbol = "→📌",
+  reference_symbol = "→",
 
   -- Week numbering system
   -- "iso8601": Week containing first Thursday of the year is week 1 (standard %V)

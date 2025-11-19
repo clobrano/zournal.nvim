@@ -2,6 +2,8 @@
 
 A Neovim plugin for journaling with Zettelkasten-style note-taking capabilities.
 
+> **⚠️ BREAKING CHANGE (v0.3.0)**: Tag format has changed from `#ztag<uuid>` / `#zref<uuid>` to `{ztag<uuid>}` / `{zref<uuid>}`. Using curly braces instead of hash to avoid confusion with standard tags. See [Migration](#migration) for details.
+
 ## Features
 
 ### Journal Management
@@ -20,9 +22,9 @@ A Neovim plugin for journaling with Zettelkasten-style note-taking capabilities.
 
 ### Line Tagging
 - **UUID Tags**: Tag lines with unique UUIDs for precise referencing
-- **Tag Concealment**: Tags are concealed as symbols (📌 by default) for clean reading
-- **Copy Tags**: Easily copy tags to reference them elsewhere
-- **Neovim Compatible**: UUIDs prefixed with 'z' for Neovim tag compatibility
+- **Tag Concealment**: Original tags (`{ztag}`) show as 📌, references (`{zref}`) show as →
+- **Copy Tags**: Easily copy tags as references to use in other files
+- **Distinct Format**: Uses `{}` braces (not `#`) to distinguish from standard Neovim tags
 
 ### Link System
 - **WikiLinks**: Support for `[[note-title]]` style links
@@ -168,8 +170,8 @@ Each workspace supports the following options:
 | `monthly_template` | `""` | Path to monthly journal template file |
 | `inbox_template` | `""` | Path to inbox note template file |
 | `inbox_dir` | `"Resources/"` | Directory for inbox notes (relative to `root_dir`) |
-| `tag_symbol` | `"📌"` | Symbol for concealed tags |
-| `reference_symbol` | `"→📌"` | Symbol for concealed reference tags |
+| `tag_symbol` | `"📌"` | Symbol for concealed original tags |
+| `reference_symbol` | `"→"` | Symbol for concealed reference tags |
 | `week_numbering_system` | `"iso8601"` | Week numbering system: `"iso8601"` (week containing first Thursday) or `"gregorian"` (week containing Jan 1) |
 
 ### Week Numbering Systems
@@ -299,8 +301,9 @@ Content here...
 
 | Command | Description |
 |---------|-------------|
-| `:ZournalTagLine` | Tag current line with a UUID |
-| `:ZournalCopyTag` | Copy tag from current line to clipboard |
+| `:ZournalTagAdd` | Add a tag (`{ztag<uuid>}`) to current line |
+| `:ZournalTagCopy` | Copy tag from current line as reference (`{zref<uuid>}`) to clipboard |
+| `:ZournalTagReferences` | Show all occurrences of tag on current line (original + references) |
 
 ### Navigation Commands
 
@@ -398,16 +401,25 @@ Content here...
 ### Tagging and Referencing Lines
 
 ```vim
-" Tag a line
-:ZournalTagLine
-" Line now has: Some important text #z1234abcd-5678-90ef-ghij-klmnopqrstuv
+" Add a tag to current line
+:ZournalTagAdd
+" Line now has: Some important text {ztag1234abcd-5678-90ef-ghij-klmnopqrstuv}
+" Tag appears concealed as 📌
 
-" Copy the tag
-:ZournalCopyTag
-" Tag is now in clipboard
+" Copy the tag as a reference
+:ZournalTagCopy
+" Clipboard now has: {zref1234abcd-5678-90ef-ghij-klmnopqrstuv}
 
 " Paste in another file to reference that line
-" Neovim's tag navigation works: Ctrl-] on the tag jumps to the original
+" Reference appears concealed as →
+" Original tags ({ztag}) show as 📌, references ({zref}) show as →
+
+" Show all occurrences of this tag
+:ZournalTagReferences
+" Opens Telescope picker showing:
+" - [Original] file.md:42 - Line content
+" - [Reference] other.md:15 - Line content
+" - [Reference] another.md:8 - Line content
 ```
 
 ### Link Navigation
@@ -443,8 +455,9 @@ vim.keymap.set('n', '<leader>zp', '<cmd>ZournalAddParent<cr>', { desc = 'Add Par
 vim.keymap.set('n', '<leader>zr', '<cmd>ZournalRelations<cr>', { desc = 'Relations' })
 
 -- Tagging
-vim.keymap.set('n', '<leader>zt', '<cmd>ZournalTagLine<cr>', { desc = 'Tag Line' })
-vim.keymap.set('n', '<leader>zy', '<cmd>ZournalCopyTag<cr>', { desc = 'Copy Tag' })
+vim.keymap.set('n', '<leader>zt', '<cmd>ZournalTagAdd<cr>', { desc = 'Add Tag' })
+vim.keymap.set('n', '<leader>zy', '<cmd>ZournalTagCopy<cr>', { desc = 'Copy Tag Reference' })
+vim.keymap.set('n', '<leader>zT', '<cmd>ZournalTagReferences<cr>', { desc = 'Tag References' })
 
 -- Navigation
 vim.keymap.set('n', '<leader>zl', '<cmd>ZournalLinks<cr>', { desc = 'Links' })
@@ -514,6 +527,37 @@ The tagging system requires the `uuidgen` command.
 - [Telescope](https://github.com/nvim-telescope/telescope.nvim) - Fuzzy finder and picker UI
 - [Plenary](https://github.com/nvim-lua/plenary.nvim) - Lua utility functions
 - [Treesitter](https://github.com/nvim-treesitter/nvim-treesitter) - Syntax parsing
+
+## Migration
+
+### Migrating from v0.2.x to v0.3.0
+
+The tag format has changed from hash-based to curly-brace-based to avoid confusion with standard Neovim tags:
+
+**Changes:**
+- Tag format: `#ztag<uuid>` → `{ztag<uuid>}` (original)
+- Tag format: `#zref<uuid>` → `{zref<uuid>}` (reference)
+
+**Migration:**
+
+Old tags (`#ztag`/`#zref`) will not be concealed in v0.3.0. To migrate existing tags:
+
+```bash
+# Update all tags to new format (run from your journal directory)
+find . -name "*.md" -type f -exec sed -i 's/#ztag\([0-9a-f-]\+\)/{ztag\1}/g; s/#zref\([0-9a-f-]\+\)/{zref\1}/g' {} +
+```
+
+### Migrating from v0.1.x to v0.2.0
+
+If upgrading from v0.1.x, first migrate to v0.2.0 format, then to v0.3.0:
+
+```bash
+# Step 1: v0.1.x to v0.2.0 (if needed)
+find . -name "*.md" -type f -exec sed -i 's/#z\([0-9a-f-]\+\)/#ztag\1/g' {} +
+
+# Step 2: v0.2.0 to v0.3.0
+find . -name "*.md" -type f -exec sed -i 's/#ztag\([0-9a-f-]\+\)/{ztag\1}/g; s/#zref\([0-9a-f-]\+\)/{zref\1}/g' {} +
+```
 
 ## License
 

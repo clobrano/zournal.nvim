@@ -2,9 +2,7 @@
 local M = {}
 
 -- Generate a UUID tag for line tagging
--- CRITICAL: Prepends 'z' to UUID for Neovim tag compatibility
--- (Neovim tags must start with a letter)
--- Returns: formatted tag string in the form "#z<uuid>" (e.g., "#za3f9b2c1-4d5e-6f7a-8b9c-0d1e2f3a4b5c")
+-- Returns: formatted tag string in the form "{ztag<uuid>}" (e.g., "{ztaga3f9b2c1-4d5e-6f7a-8b9c-0d1e2f3a4b5c}")
 function M.generate_uuid()
   -- Call system uuidgen command to generate a UUID
   local handle = io.popen("uuidgen")
@@ -22,15 +20,15 @@ function M.generate_uuid()
   -- Convert to lowercase for consistency
   uuid = uuid:lower()
 
-  -- Prepend 'z' for Neovim tag compatibility and add '#' prefix
-  local tag = "#z" .. uuid
+  -- Format as {ztag<uuid>}
+  local tag = "{ztag" .. uuid .. "}"
 
   return tag
 end
 
--- Tag the current line with a UUID
--- Appends a UUID tag to the end of the current line
-function M.tag_current_line()
+-- Add a tag to the current line
+-- Appends a UUID tag in format {ztag<uuid>} to the end of the current line
+function M.add_tag()
   -- Get current line number and content
   local line_num = vim.api.nvim_win_get_cursor(0)[1]
   local line_content = vim.api.nvim_get_current_line()
@@ -50,26 +48,29 @@ function M.tag_current_line()
   vim.notify("Line tagged with " .. tag, vim.log.levels.INFO)
 end
 
--- Copy tag from current line to clipboard
--- Extracts UUID tag from current line and copies it to system clipboard
-function M.copy_tag_from_line()
+-- Copy tag reference from current line to clipboard
+-- Extracts UUID from current line and copies it as {zref<uuid>} to clipboard
+function M.copy_tag_reference()
   -- Get current line content
   local line_content = vim.api.nvim_get_current_line()
 
-  -- Parse line to find tag pattern #z[0-9a-f-]+
-  -- UUID format: #z followed by hex digits and hyphens
-  local tag = line_content:match("#z[0-9a-f%-]+")
+  -- Parse line to find tag pattern {ztag or {zref followed by UUID
+  -- UUID format: hex digits and hyphens, ending with }
+  local uuid = line_content:match("{z[tr][ea][fg]([0-9a-f%-]+)}")
 
-  if not tag then
+  if not uuid then
     vim.notify("No tag found on current line", vim.log.levels.ERROR)
     return
   end
 
-  -- Copy tag to system clipboard
-  vim.fn.setreg('+', tag)
+  -- Create reference tag format
+  local ref_tag = "{zref" .. uuid .. "}"
+
+  -- Copy reference tag to system clipboard
+  vim.fn.setreg('+', ref_tag)
 
   -- Show confirmation message
-  vim.notify("Tag copied to clipboard: " .. tag, vim.log.levels.INFO)
+  vim.notify("Tag reference copied to clipboard: " .. ref_tag, vim.log.levels.INFO)
 end
 
 -- Setup tag concealment for markdown files in journal directory
@@ -94,18 +95,18 @@ function M.setup_concealment()
       end
 
       -- Set up syntax concealment for tags
-      -- Pattern: #z followed by UUID (hex digits and hyphens)
-      vim.cmd([[
-        syntax match ZournalTag /#z[0-9a-f-]\+/ conceal
-      ]])
+      -- Original tags: {ztag<uuid>} -> concealed with tag_symbol (📌)
+      -- Reference tags: {zref<uuid>} -> concealed with reference_symbol (→)
+      local tag_symbol = config.tag_symbol or "📌"
+      local ref_symbol = config.reference_symbol or "→"
 
-      -- Set conceal character to tag symbol from config
-      -- Note: Neovim doesn't distinguish between original and reference tags easily
-      -- Using a simple approach: conceal all tags with the same symbol
-      local symbol = config.tag_symbol or "📌"
       vim.cmd(string.format([[
-        syntax match ZournalTag /#z[0-9a-f-]\+/ conceal cchar=%s
-      ]], symbol))
+        syntax match ZournalTagOriginal /{ztag[0-9a-f-]\+}/ conceal cchar=%s
+      ]], tag_symbol))
+
+      vim.cmd(string.format([[
+        syntax match ZournalTagReference /{zref[0-9a-f-]\+}/ conceal cchar=%s
+      ]], ref_symbol))
 
       -- Ensure concealment is enabled (respect user's conceallevel setting)
       if vim.o.conceallevel == 0 then

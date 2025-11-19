@@ -130,38 +130,45 @@ zournal.nvim is a Neovim plugin that combines journaling capabilities with Zette
 
 #### Tag Format
 - Tags are UUIDs (e.g., generated via `uuidgen`)
-- Appended to end of line using Neovim's native tag syntax: `#<uuid>`
-- Example: `This is an important insight #a3f9b2c1-4d5e-6f7a-8b9c-0d1e2f3a4b5c`
-- NOTE: Neovim only recognizes tags that start with a character (i.e. OK: #a123, NOT: #1abc) `uuidgen` might generate the wrong uuid. You MUST prepend each UUID with `z` (e.g. `uuidgen` generates `a3f9b2c1-4d5e-6f7a-8b9c-0d1e2f3a4b5c`, you MUST use `za3f9b2c1-4d5e-6f7a-8b9c-0d1e2f3a4b5c`, if `uuidgen` generates `a3f9b2c1-4d5e-6f7a-8b9c-0d1e2f3a4b5c` you MUST use `za3f9b2c1-4d5e-6f7a-8b9c-0d1e2f3a4b5c`)
+- Two types of tags:
+  - **Original tags**: `{ztag<uuid>}` - created when tagging a line
+  - **Reference tags**: `{zref<uuid>}` - copied from original tags to reference them elsewhere
+- Example: `This is an important insight {ztaga3f9b2c1-4d5e-6f7a-8b9c-0d1e2f3a4b5c}`
+- NOTE: Uses curly braces `{}` instead of hash `#` to distinguish from standard Neovim tags
 
 #### Tag Concealment
-- **Original tags** (created in the current file):
-  - Concealed and displayed as: `#📌` (or similar symbol)
-  - Visually distinct from references
-- **Reference tags** (copied from other files):
-  - Concealed and displayed as: `→📌` (or similar with arrow)
-  - Same UUID as original, different display
-  - Arrow `→` symbol indicates this is a reference
+- **Original tags** (`{ztag<uuid>}`):
+  - Concealed and displayed as: `📌` (configurable via `tag_symbol`)
+  - Indicates the source/original location
+- **Reference tags** (`{zref<uuid>}`):
+  - Concealed and displayed as: `→` (configurable via `reference_symbol`)
+  - Same UUID as original, different prefix and display
+  - Arrow symbol indicates this is a reference to a tag elsewhere
 
 #### Line Tagging Commands
 
-**Tag Current Line**
-- Command: `:ZournalTagLine`
+**Add Tag to Current Line**
+- Command: `:ZournalTagAdd`
 - Generates new UUID
-- Appends tag to end of current line
-- Tag is automatically concealed
+- Appends `{ztag<uuid>}` to end of current line
+- Tag is automatically concealed as 📌
 
-**Copy Tag**
-- Command: `:ZournalCopyTag`
-- Copies the UUID tag from current line to clipboard
-- Tag can then be pasted in another file as a reference
-- When pasted, reference concealment applies
+**Copy Tag Reference**
+- Command: `:ZournalTagCopy`
+- Extracts UUID from tag on current line (works with both `{ztag}` and `{zref}`)
+- Copies `{zref<uuid>}` to clipboard
+- Paste in another file to create a reference
+- When pasted, reference is concealed as →
 
-**Show References**
-We can remove this function. It is already provided by Neovim
-- Command: `:ZournalShowReferences`
-- Shows all files/locations that reference the tag on current line
-- Display format TBD (likely Telescope picker or quickfix list)
+**Show Tag References**
+- Command: `:ZournalTagReferences`
+- Shows all occurrences of the tag UUID on current line
+- Displays in Telescope picker with:
+  - Original tag listed first
+  - All references listed after
+  - Format: `[Original/Reference] filename:line - line content`
+- Pressing Enter jumps to selected occurrence
+- Note: Required because curly-brace format (`{ztag}` vs `{zref}`) is not compatible with Neovim's native tag navigation system
 
 #### Tag Metadata
 - **No bidirectional tracking stored in files**
@@ -283,10 +290,10 @@ zournal.nvim/
 #### Referencing Specific Insights
 1. Reading through old journal entry
 2. Find important insight on line 45
-3. Run `:ZournalTagLine` - line gets UUID tag (concealed as `#📌`)
+3. Run `:ZournalTagAdd` - line gets UUID tag (concealed as `📌`)
 4. Later, in different note, want to reference that insight
-5. Navigate back to original line, run `:ZournalCopyTag`
-6. Paste in new note - displays as `→📌` (reference symbol)
+5. Navigate back to original line, run `:ZournalTagCopy`
+6. Paste in new note - displays as `→` (reference symbol)
 7. Can click/follow reference back to original context
 
 ### 5.2 Keybindings
@@ -301,9 +308,9 @@ zournal.nvim/
   vim.keymap.set('n', '<leader>zc', ':ZournalNewChild<CR>')
   vim.keymap.set('n', '<leader>zs', ':ZournalNewSibling<CR>')
   vim.keymap.set('n', '<leader>zR', ':ZournalRelations<CR>')
-  vim.keymap.set('n', '<leader>zt', ':ZournalTagLine<CR>')
-  vim.keymap.set('n', '<leader>zr', ':ZournalCopyTag<CR>')
-  vim.keymap.set('n', '<leader>zS', ':ZournalShowReferences<CR>')
+  vim.keymap.set('n', '<leader>zt', ':ZournalTagAdd<CR>')
+  vim.keymap.set('n', '<leader>zy', ':ZournalTagCopy<CR>')
+  vim.keymap.set('n', '<leader>zT', ':ZournalTagReferences<CR>')
   ```
 
 ## 6. Future Considerations

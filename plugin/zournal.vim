@@ -22,8 +22,9 @@ command! ZournalRelations lua require('zournal.telescope.relations').pick_relati
 command! ZournalLinks lua require('zournal.telescope.links').pick_links()
 
 " Tagging commands
-command! ZournalTagLine lua require('zournal.tags').tag_current_line()
-command! ZournalCopyTag lua require('zournal.tags').copy_tag_from_line()
+command! ZournalTagAdd lua require('zournal.tags').add_tag()
+command! ZournalTagCopy lua require('zournal.tags').copy_tag_reference()
+command! ZournalTagReferences lua require('zournal.telescope.tag_references').pick_tag_references()
 
 " Navigation commands
 command! -nargs=? ZournalJumpToDate lua require('zournal.journal').jump_to_date(<f-args>)
