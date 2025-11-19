@@ -10,6 +10,7 @@ M.links = require('zournal.links')
 M.utils = require('zournal.utils')
 M.frontmatter = require('zournal.frontmatter')
 M.template = require('zournal.template')
+M.virtual_text = require('zournal.virtual_text')
 M.telescope = {
   relations = require('zournal.telescope.relations'),
   links = require('zournal.telescope.links'),
@@ -56,6 +57,9 @@ function M.setup(opts)
 
   -- Setup tag signs
   M.tags.setup_signs()
+
+  -- Setup virtual text for tag references
+  M.virtual_text.setup_virtual_text()
 
   -- Setup automatic link renaming
   M.links.setup_auto_rename()

@@ -22,7 +22,9 @@ A Neovim plugin for journaling with Zettelkasten-style note-taking capabilities.
 
 ### Line Tagging
 - **UUID Tags**: Tag lines with unique UUIDs for precise referencing
-- **Tag Concealment**: Original tags (`{ztag}`) show as 📌, references (`{zref}`) show as →
+- **Tag Concealment**: Tags are completely hidden (concealed) with sign column indicators
+- **Sign Column**: Shows "Z" in sign column for both original and reference tags
+- **Virtual Text**: Optionally display original line content next to reference tags
 - **Copy Tags**: Easily copy tags as references to use in other files
 - **Distinct Format**: Uses `{}` braces (not `#`) to distinguish from standard Neovim tags
 
@@ -170,8 +172,11 @@ Each workspace supports the following options:
 | `monthly_template` | `""` | Path to monthly journal template file |
 | `inbox_template` | `""` | Path to inbox note template file |
 | `inbox_dir` | `"Resources/"` | Directory for inbox notes (relative to `root_dir`) |
-| `tag_symbol` | `"📌"` | Symbol for concealed original tags |
-| `reference_symbol` | `"→"` | Symbol for concealed reference tags |
+| `tag_sign` | `"Z"` | Sign column indicator for tags |
+| `reference_sign` | `"Z"` | Sign column indicator for reference tags |
+| `virtual_text_enabled` | `false` | Enable virtual text showing original tag content for references |
+| `virtual_text_format` | `'→ "%s"'` | Format string for virtual text (`%s` = original line content) |
+| `virtual_text_max_length` | `60` | Maximum length of virtual text before truncation |
 | `week_numbering_system` | `"iso8601"` | Week numbering system: `"iso8601"` (week containing first Thursday) or `"gregorian"` (week containing Jan 1) |
 
 ### Week Numbering Systems
@@ -304,6 +309,9 @@ Content here...
 | `:ZournalTagAdd` | Add a tag (`{ztag<uuid>}`) to current line |
 | `:ZournalTagCopy` | Copy tag from current line as reference (`{zref<uuid>}`) to clipboard |
 | `:ZournalTagReferences` | Show all occurrences of tag on current line (original + references) |
+| `:ZournalVirtualTextShow` | Show virtual text displaying original tag content for all references |
+| `:ZournalVirtualTextClear` | Clear virtual text from current buffer |
+| `:ZournalVirtualTextToggle` | Toggle virtual text on/off for current buffer |
 
 ### Navigation Commands
 
@@ -404,15 +412,18 @@ Content here...
 " Add a tag to current line
 :ZournalTagAdd
 " Line now has: Some important text {ztag1234abcd-5678-90ef-ghij-klmnopqrstuv}
-" Tag appears concealed as 📌
+" Tag is completely concealed (invisible), sign column shows "Z"
 
 " Copy the tag as a reference
 :ZournalTagCopy
 " Clipboard now has: {zref1234abcd-5678-90ef-ghij-klmnopqrstuv}
 
 " Paste in another file to reference that line
-" Reference appears concealed as →
-" Original tags ({ztag}) show as 📌, references ({zref}) show as →
+" Reference tag is also concealed, sign column shows "Z"
+
+" Show original content for reference tags (virtual text)
+:ZournalVirtualTextShow
+" Reference line now displays: → "Some important text" (virtual text at end of line)
 
 " Show all occurrences of this tag
 :ZournalTagReferences

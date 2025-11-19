@@ -28,6 +28,11 @@ local workspace_defaults = {
   tag_sign = "Z",
   reference_sign = "Z",
 
+  -- Virtual text settings
+  virtual_text_enabled = false,  -- Enable virtual text showing original tag content
+  virtual_text_format = '→ "%s"',  -- Format string for virtual text (%s = original line content)
+  virtual_text_max_length = 60,  -- Maximum length of virtual text before truncation
+
   -- Week numbering system
   -- "iso8601": Week containing first Thursday of the year is week 1 (standard %V)
   -- "gregorian": Week containing January 1st is week 1

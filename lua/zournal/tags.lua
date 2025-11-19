@@ -125,6 +125,11 @@ end
 function M.setup_signs()
   local config = require('zournal.config').get()
 
+  -- Define highlight groups for tags
+  vim.api.nvim_set_hl(0, "ZournalTagOriginal", { link = "Tag", default = true })
+  vim.api.nvim_set_hl(0, "ZournalTagReference", { link = "Comment", default = true })
+  vim.api.nvim_set_hl(0, "ZournalVirtualText", { link = "NonText", default = true })
+
   -- Define signs for tags
   local tag_sign = config.tag_sign or "Z"
   local ref_sign = config.reference_sign or "Z"
