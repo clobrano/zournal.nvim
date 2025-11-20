@@ -208,6 +208,8 @@ function M.toggle()
   local bufnr = vim.api.nvim_get_current_buf()
 
   if current_config.virtual_text_enabled then
+    -- Force update by clearing changedtick to bypass cache
+    last_changedtick[bufnr] = nil
     M.update_virtual_text(bufnr)
     vim.notify("Virtual text enabled", vim.log.levels.INFO)
   else
