@@ -7,6 +7,10 @@ local ns_id = nil
 -- Debounce timer for updates
 local update_timer = nil
 
+-- Track last processed changedtick per buffer to avoid redundant updates
+-- Key: bufnr, Value: changedtick
+local last_changedtick = {}
+
 -- Initialize namespace
 local function init_namespace()
   if not ns_id then
@@ -97,8 +101,19 @@ function M.update_virtual_text_all()
 
     -- Only update if buffer is loaded
     if bufnr ~= -1 and vim.api.nvim_buf_is_loaded(bufnr) then
+      -- Check if buffer has changed since last update
+      local current_tick = vim.api.nvim_buf_get_changedtick(bufnr)
+      if last_changedtick[bufnr] == current_tick then
+        -- Buffer hasn't changed, skip update
+        goto continue
+      end
+      last_changedtick[bufnr] = current_tick
+
       -- Clear existing virtual text
       vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
+
+      -- Cache window width to avoid repeated API calls
+      local win_width = vim.api.nvim_win_get_width(0)
 
       -- Add virtual text for each reference
       for _, ref in ipairs(file_refs) do
@@ -110,7 +125,6 @@ function M.update_virtual_text_all()
           local virt_text = string.format(config.virtual_text_format, content)
 
           -- Use virt_lines for all lines (wrapped)
-          local win_width = vim.api.nvim_win_get_width(0)
           local wrapped_lines = wrap_text_for_virt_lines(virt_text, win_width - 4, "ZournalVirtualText")
 
           vim.api.nvim_buf_set_extmark(bufnr, ns, ref.line_num - 1, 0, {
@@ -119,6 +133,7 @@ function M.update_virtual_text_all()
         end
       end
     end
+    ::continue::
   end
 end
 
@@ -139,6 +154,14 @@ function M.update_virtual_text(bufnr)
     return
   end
 
+  -- Check if buffer has changed since last update
+  local current_tick = vim.api.nvim_buf_get_changedtick(bufnr)
+  if last_changedtick[bufnr] == current_tick then
+    -- Buffer hasn't changed, skip update
+    return
+  end
+  last_changedtick[bufnr] = current_tick
+
   local ns = init_namespace()
 
   -- Clear existing virtual text
@@ -146,6 +169,9 @@ function M.update_virtual_text(bufnr)
 
   -- Get all lines in buffer
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+
+  -- Cache window width to avoid repeated API calls
+  local win_width = vim.api.nvim_win_get_width(0)
 
   for line_num, line_content in ipairs(lines) do
     -- Look for reference tags {zref<uuid>}
@@ -161,7 +187,6 @@ function M.update_virtual_text(bufnr)
         local virt_text = string.format(config.virtual_text_format, content)
 
         -- Use virt_lines for all lines (wrapped)
-        local win_width = vim.api.nvim_win_get_width(0)
         local wrapped_lines = wrap_text_for_virt_lines(virt_text, win_width - 4, "ZournalVirtualText")
 
         vim.api.nvim_buf_set_extmark(bufnr, ns, line_num - 1, 0, {
@@ -203,13 +228,18 @@ function M.setup_virtual_text()
   -- Create autocommand group
   local group = vim.api.nvim_create_augroup('ZournalVirtualText', { clear = true })
 
-  -- Update virtual text on buffer enter
+  -- Update virtual text on buffer enter (deferred to avoid blocking)
   vim.api.nvim_create_autocmd({'BufEnter', 'BufWinEnter'}, {
     group = group,
     pattern = '*.md',
     callback = function()
       local bufnr = vim.api.nvim_get_current_buf()
-      M.update_virtual_text(bufnr)
+      -- Defer rendering to avoid blocking buffer switch
+      vim.defer_fn(function()
+        if vim.api.nvim_buf_is_valid(bufnr) then
+          M.update_virtual_text(bufnr)
+        end
+      end, 10) -- 10ms delay - imperceptible but prevents blocking
     end,
   })
 
@@ -233,6 +263,16 @@ function M.setup_virtual_text()
           M.update_virtual_text(bufnr)
         end
       end))
+    end,
+  })
+
+  -- Clean up cache when buffer is deleted
+  vim.api.nvim_create_autocmd('BufDelete', {
+    group = group,
+    pattern = '*.md',
+    callback = function(args)
+      local bufnr = args.buf
+      last_changedtick[bufnr] = nil
     end,
   })
 end
