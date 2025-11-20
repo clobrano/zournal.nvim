@@ -27,8 +27,10 @@ local function find_all_tag_occurrences(uuid)
   for _, filepath in ipairs(files) do
     local content = utils.read_file(filepath)
     if content then
-      local line_num = 1
-      for line in content:gmatch("[^\r\n]+") do
+      local line_num = 0
+      -- Split by newlines but keep empty lines
+      for line in (content .. "\n"):gmatch("([^\n]*)\n") do
+        line_num = line_num + 1
         -- Check for both {ztag and {zref with this UUID
         local ztag_match = line:match("{ztag" .. vim.pesc(uuid) .. "}")
         local zref_match = line:match("{zref" .. vim.pesc(uuid) .. "}")
@@ -44,7 +46,6 @@ local function find_all_tag_occurrences(uuid)
             mtime = vim.loop.fs_stat(filepath).mtime.sec,
           })
         end
-        line_num = line_num + 1
       end
     end
   end

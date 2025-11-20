@@ -77,8 +77,10 @@ local function scan_for_original(uuid, config)
 
     local content = utils.read_file(filepath)
     if content then
-      local line_num = 1
-      for line in content:gmatch("[^\r\n]+") do
+      local line_num = 0
+      -- Split by newlines but keep empty lines
+      for line in (content .. "\n"):gmatch("([^\n]*)\n") do
+        line_num = line_num + 1
         -- Look for original tag {ztag<uuid>}
         local ztag_match = line:match("{ztag" .. vim.pesc(uuid) .. "}")
 
@@ -93,7 +95,6 @@ local function scan_for_original(uuid, config)
             mtime = stat and stat.mtime.sec or 0,
           })
         end
-        line_num = line_num + 1
       end
     end
   end
@@ -160,8 +161,10 @@ function M.find_all_references()
   for _, filepath in ipairs(files) do
     local content = utils.read_file(filepath)
     if content then
-      local line_num = 1
-      for line in content:gmatch("[^\r\n]+") do
+      local line_num = 0
+      -- Split by newlines but keep empty lines
+      for line in (content .. "\n"):gmatch("([^\n]*)\n") do
+        line_num = line_num + 1
         -- Look for reference tags {zref<uuid>}
         local uuid = line:match("{zref([0-9a-f%-]+)}")
 
@@ -173,7 +176,6 @@ function M.find_all_references()
             line_content = line,
           })
         end
-        line_num = line_num + 1
       end
     end
   end
