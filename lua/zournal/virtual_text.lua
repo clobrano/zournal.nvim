@@ -20,6 +20,38 @@ local function extract_uuid(tag_string)
   return tag_string:match("{z[tr][ea][fg]([0-9a-f%-]+)}")
 end
 
+-- Wrap text into multiple lines based on max width
+-- Returns array of lines for virt_lines (each line is {text, highlight})
+local function wrap_text_for_virt_lines(text, max_width, highlight)
+  if #text <= max_width then
+    return {{{text, highlight}}}
+  end
+
+  local lines = {}
+  local remaining = text
+
+  while #remaining > 0 do
+    if #remaining <= max_width then
+      table.insert(lines, {{remaining, highlight}})
+      break
+    end
+
+    -- Try to break at a space near the max width
+    local break_pos = max_width
+    local space_pos = remaining:sub(1, max_width):match("^.*()%s")
+
+    -- If we found a space in the last 40% of the line, break there
+    if space_pos and space_pos > max_width * 0.6 then
+      break_pos = space_pos - 1
+    end
+
+    table.insert(lines, {{remaining:sub(1, break_pos), highlight}})
+    remaining = remaining:sub(break_pos + 1):gsub("^%s+", "") -- Strip leading whitespace
+  end
+
+  return lines
+end
+
 -- Find the original tag content for a given UUID (uses cache)
 -- Returns: {content, filepath, line_num} or nil
 local function find_original_content(uuid)
@@ -77,10 +109,12 @@ function M.update_virtual_text_all()
           local content = original.content
           local virt_text = string.format(config.virtual_text_format, content)
 
-          -- Add virtual text at end of line
+          -- Use virt_lines for all lines (wrapped)
+          local win_width = vim.api.nvim_win_get_width(0)
+          local wrapped_lines = wrap_text_for_virt_lines(virt_text, win_width - 4, "ZournalVirtualText")
+
           vim.api.nvim_buf_set_extmark(bufnr, ns, ref.line_num - 1, 0, {
-            virt_text = {{virt_text, "ZournalVirtualText"}},
-            virt_text_pos = 'eol',
+            virt_lines = wrapped_lines,
           })
         end
       end
@@ -126,10 +160,12 @@ function M.update_virtual_text(bufnr)
         local content = original.content
         local virt_text = string.format(config.virtual_text_format, content)
 
-        -- Add virtual text at end of line
+        -- Use virt_lines for all lines (wrapped)
+        local win_width = vim.api.nvim_win_get_width(0)
+        local wrapped_lines = wrap_text_for_virt_lines(virt_text, win_width - 4, "ZournalVirtualText")
+
         vim.api.nvim_buf_set_extmark(bufnr, ns, line_num - 1, 0, {
-          virt_text = {{virt_text, "ZournalVirtualText"}},
-          virt_text_pos = 'eol',
+          virt_lines = wrapped_lines,
         })
       end
     end
