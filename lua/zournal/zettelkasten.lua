@@ -644,4 +644,131 @@ function M.add_parent_relationship()
   return true
 end
 
+--- Find all files with a specific zid
+---@param target_zid string|number The zid to search for
+---@return table files List of {path, zid} tables for files with matching zid
+function M.find_files_with_zid(target_zid)
+  local files = find_all_markdown_files()
+  local results = {}
+
+  -- Convert target_zid to string for comparison
+  local target_zid_str = tostring(target_zid)
+
+  for _, file_path in ipairs(files) do
+    local zid = frontmatter.get_zid(file_path)
+    if zid and tostring(zid) == target_zid_str then
+      table.insert(results, {
+        path = file_path,
+        zid = tostring(zid)
+      })
+    end
+  end
+
+  return results
+end
+
+--- Check if a zid is unique in the workspace
+---@param zid string|number The zid to check
+---@param exclude_path string|nil Optional file path to exclude from check (for updates)
+---@return boolean is_unique True if zid is unique (or only exists in exclude_path)
+---@return table|nil duplicate_files List of files with duplicate zid, or nil if unique
+function M.is_zid_unique(zid, exclude_path)
+  local files = M.find_files_with_zid(zid)
+
+  -- Filter out excluded path if provided
+  if exclude_path then
+    files = vim.tbl_filter(function(file)
+      return file.path ~= exclude_path
+    end, files)
+  end
+
+  local is_unique = #files == 0
+  return is_unique, is_unique and nil or files
+end
+
+--- Validate all zids in workspace and report duplicates
+---@return table report Table with {duplicates = {{zid, files}...}, total_files, total_zids}
+function M.validate_all_zids()
+  local files = find_all_markdown_files()
+  local zid_map = {} -- zid -> {file_path1, file_path2, ...}
+  local total_files = 0
+  local total_zids = 0
+
+  -- Scan all files and build zid map
+  for _, file_path in ipairs(files) do
+    local zid = frontmatter.get_zid(file_path)
+    if zid then
+      total_files = total_files + 1
+      total_zids = total_zids + 1
+      local zid_str = tostring(zid)
+
+      if not zid_map[zid_str] then
+        zid_map[zid_str] = {}
+      end
+      table.insert(zid_map[zid_str], file_path)
+    end
+  end
+
+  -- Find duplicates
+  local duplicates = {}
+  for zid, paths in pairs(zid_map) do
+    if #paths > 1 then
+      table.insert(duplicates, {
+        zid = zid,
+        files = paths
+      })
+    end
+  end
+
+  -- Sort duplicates by zid for consistent output
+  table.sort(duplicates, function(a, b)
+    return a.zid < b.zid
+  end)
+
+  return {
+    duplicates = duplicates,
+    total_files = total_files,
+    total_zids = total_zids
+  }
+end
+
+--- User-facing command to validate all zids and display results
+function M.validate_zids_command()
+  local report = M.validate_all_zids()
+
+  if #report.duplicates == 0 then
+    vim.notify(
+      string.format(
+        "✓ All zids are unique\n" ..
+        "Scanned %d files with %d zids",
+        report.total_files,
+        report.total_zids
+      ),
+      vim.log.levels.INFO
+    )
+    return
+  end
+
+  -- Build error message for duplicates
+  local messages = {
+    string.format(
+      "⚠ Found %d duplicate zid(s) in %d files:\n",
+      #report.duplicates,
+      report.total_files
+    )
+  }
+
+  for _, dup in ipairs(report.duplicates) do
+    table.insert(messages, string.format("\nZid '%s' appears in:", dup.zid))
+    for _, file_path in ipairs(dup.files) do
+      local filename = vim.fn.fnamemodify(file_path, ":t")
+      table.insert(messages, string.format("  - %s", filename))
+    end
+  end
+
+  table.insert(messages, "\nPlease resolve duplicates by editing frontmatter.")
+
+  vim.notify(table.concat(messages, "\n"), vim.log.levels.WARN)
+end
+
 return M

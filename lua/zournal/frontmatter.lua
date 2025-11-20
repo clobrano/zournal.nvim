@@ -204,6 +204,28 @@ function M.set_zid(file_path, zid)
     return false
   end
 
+  -- Check for duplicate zids
+  local zettelkasten = require('zournal.zettelkasten')
+  local is_unique, duplicates = zettelkasten.is_zid_unique(zid, file_path)
+
+  if not is_unique then
+    -- Build list of duplicate filenames
+    local duplicate_names = vim.tbl_map(function(f)
+      return vim.fn.fnamemodify(f.path, ":t")
+    end, duplicates)
+
+    vim.notify(
+      string.format(
+        "Cannot set zid '%s': Duplicate found in:\n  %s\n\n" ..
+        "Please choose a different zid or remove the duplicate.",
+        zid,
+        table.concat(duplicate_names, "\n  ")
+      ),
+      vim.log.levels.ERROR
+    )
+    return false
+  end
+
   return M.update_frontmatter(file_path, { zid = zid })
 end
 

@@ -16,6 +16,7 @@ command! ZournalInbox lua require('zournal.journal').create_inbox_note()
 command! ZournalNewChild lua require('zournal.zettelkasten').create_child_note()
 command! ZournalNewSibling lua require('zournal.zettelkasten').create_sibling_note()
 command! ZournalAddParent lua require('zournal.zettelkasten').add_parent_relationship()
+command! ZournalValidateZids lua require('zournal.zettelkasten').validate_zids_command()
 
 " Telescope integration commands
 command! ZournalRelations lua require('zournal.telescope.relations').pick_relations()
