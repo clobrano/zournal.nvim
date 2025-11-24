@@ -12,6 +12,7 @@ A Neovim plugin for journaling with Zettelkasten-style note-taking capabilities.
 - **Monthly Journals**: Create monthly entries for broader planning
 - **Inbox Notes**: Quick capture notes stored in a configurable directory
 - **Jump to Date**: Navigate to any date's journal entry
+- **Calendar View**: Interactive calendar picker to browse and navigate to journal entries across dates
 
 ### Zettelkasten System
 - **Hierarchical IDs**: Notes use alternating number/character zids (e.g., `1a`, `1b3c5`)
@@ -290,6 +291,7 @@ Content here...
 | `:ZournalMonthlyJournal` | Create or open this month's journal |
 | `:ZournalInbox` | Create a new inbox note (prompts for title) |
 | `:ZournalJumpToDate [date]` | Jump to a specific date's journal |
+| `:ZournalCalendar` | Open calendar view to browse and navigate to journal entries |
 
 ### Zettelkasten Commands
 
@@ -360,6 +362,12 @@ Content here...
 
 " Jump to a specific date
 :ZournalJumpToDate 2024-01-15
+
+" Browse journal entries with calendar view
+:ZournalCalendar
+" Shows dates with status: [Daily/Weekly/Monthly] or [New]
+" Press Enter to open daily journal for selected date
+" Use fuzzy search to find specific dates (e.g., "2024-01-15" or "January")
 ```
 
 ### Creating Zettelkasten Notes
@@ -472,6 +480,7 @@ vim.keymap.set('n', '<leader>jd', '<cmd>ZournalDailyJournal<cr>', { desc = 'Dail
 vim.keymap.set('n', '<leader>jw', '<cmd>ZournalWeeklyJournal<cr>', { desc = 'Weekly Journal' })
 vim.keymap.set('n', '<leader>jm', '<cmd>ZournalMonthlyJournal<cr>', { desc = 'Monthly Journal' })
 vim.keymap.set('n', '<leader>ji', '<cmd>ZournalInbox<cr>', { desc = 'Inbox Note' })
+vim.keymap.set('n', '<leader>jc', '<cmd>ZournalCalendar<cr>', { desc = 'Calendar View' })
 
 -- Zettelkasten
 vim.keymap.set('n', '<leader>zc', '<cmd>ZournalNewChild<cr>', { desc = 'New Child Note' })

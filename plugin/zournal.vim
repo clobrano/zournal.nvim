@@ -21,6 +21,7 @@ command! ZournalValidateZids lua require('zournal.zettelkasten').validate_zids_c
 " Telescope integration commands
 command! ZournalRelations lua require('zournal.telescope.relations').pick_relations()
 command! ZournalLinks lua require('zournal.telescope.links').pick_links()
+command! ZournalCalendar lua require('zournal.telescope.calendar').show_calendar()
 
 " Tagging commands
 command! ZournalTagAdd lua require('zournal.tags').add_tag()
