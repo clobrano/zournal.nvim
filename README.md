@@ -187,13 +187,15 @@ zournal.nvim supports two different week numbering systems:
 **ISO 8601 (default)**:
 - Week 1 is the week containing the first Thursday of the year
 - Weeks start on Monday
-- Standard international format (`%V` in strftime)
+- Standard international format
 - Used in most European countries, international business
 
 **Gregorian**:
 - Week 1 is the week containing January 1st
 - Weeks start on Monday
 - Some calendars (particularly Italian calendars) may show week numbers using this system
+
+**Important**: All week number format codes (`%V`, `%W`, `%U`) in your `weekly_format` will use the configured `week_numbering_system`, ensuring consistency between filenames and template content.
 
 To change the week numbering system, add it to your workspace configuration:
 

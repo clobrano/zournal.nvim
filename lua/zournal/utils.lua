@@ -89,21 +89,23 @@ end
 -- ============================================================================
 
 --- Format date using strftime-like patterns
---- Special handling: %V is replaced with week number from configured system
+--- Special handling: %V, %W, %U are replaced with week number from configured system
 ---@param format_string string
 ---@param date number|nil Unix timestamp (defaults to current time)
 ---@return string
 function M.format_date(format_string, date)
   date = date or os.time()
 
-  -- Check if format contains %V (ISO week number)
-  if format_string:match("%%V") then
-    -- Replace %V with the configured week number
+  -- Check if format contains week number placeholders (%V, %W, or %U)
+  if format_string:match("%%[VWU]") then
+    -- Replace all week number formats with the configured week number
     local week = M.get_iso_week(date)
     -- Format the week number with leading zero (2 digits)
     local week_str = string.format("%02d", week)
-    -- Replace %V with the calculated week number
+    -- Replace %V, %W, and %U with the calculated week number
     format_string = format_string:gsub("%%V", week_str)
+    format_string = format_string:gsub("%%W", week_str)
+    format_string = format_string:gsub("%%U", week_str)
   end
 
   return os.date(format_string, date)
