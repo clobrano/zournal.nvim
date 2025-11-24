@@ -39,7 +39,7 @@ local function get_journal_path(date_str, format_type)
 		return nil
 	end
 
-	local filename = os.date(format, date)
+	local filename = utils.format_date(format, date)
 	return journal_dir .. "/" .. filename
 end
 

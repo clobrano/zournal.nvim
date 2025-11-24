@@ -178,7 +178,7 @@ Each workspace supports the following options:
 | `virtual_text_enabled` | `false` | Enable virtual text showing original tag content for references |
 | `virtual_text_format` | `'→ "%s"'` | Format string for virtual text (`%s` = original line content) |
 | `tag_cache_ttl` | `300` | Tag cache time-to-live in seconds (5 minutes) |
-| `week_numbering_system` | `"iso8601"` | Week numbering system: `"iso8601"` (week containing first Thursday) or `"gregorian"` (week containing Jan 1) |
+| `week_numbering_system` | `"iso8601"` | Week numbering system: `"iso8601"` (week containing first Thursday) or `"gregorian"` (week containing Jan 1). Case-insensitive. |
 
 ### Week Numbering Systems
 
@@ -187,13 +187,15 @@ zournal.nvim supports two different week numbering systems:
 **ISO 8601 (default)**:
 - Week 1 is the week containing the first Thursday of the year
 - Weeks start on Monday
-- Standard international format (`%V` in strftime)
+- Standard international format
 - Used in most European countries, international business
 
 **Gregorian**:
 - Week 1 is the week containing January 1st
 - Weeks start on Monday
 - Some calendars (particularly Italian calendars) may show week numbers using this system
+
+**Important**: All week number format codes (`%V`, `%W`, `%U`) in your `weekly_format` will use the configured `week_numbering_system`, ensuring consistency between filenames and template content.
 
 To change the week numbering system, add it to your workspace configuration:
 
@@ -202,7 +204,7 @@ require('zournal').setup({
   workspaces = {
     personal = {
       root_dir = "~/notes/",
-      week_numbering_system = "gregorian",  -- or "iso8601" (default)
+      week_numbering_system = "gregorian",  -- or "iso8601" (default), case-insensitive
       -- ... other options
     },
   },
