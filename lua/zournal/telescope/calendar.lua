@@ -227,94 +227,12 @@ function M.show_calendar(opts)
 				end,
 			}),
 			attach_mappings = function(prompt_bufnr, map)
-				-- Default action: open daily journal
+				-- Default action: open daily journal for selected date
 				actions.select_default:replace(function()
 					actions.close(prompt_bufnr)
 					local selection = action_state.get_selected_entry()
 					if selection then
 						journal.jump_to_date(selection.date_str)
-					end
-				end)
-
-				-- Additional mappings for different journal types
-				map("i", "<C-d>", function()
-					actions.close(prompt_bufnr)
-					local selection = action_state.get_selected_entry()
-					if selection then
-						journal.jump_to_date(selection.date_str)
-					end
-				end)
-
-				map("i", "<C-w>", function()
-					actions.close(prompt_bufnr)
-					local selection = action_state.get_selected_entry()
-					if selection then
-						-- Parse date and create weekly journal
-						local date = utils.parse_date(selection.date_str)
-						if date then
-							-- Temporarily override the date for weekly journal
-							local workspace_config = config.get()
-							local journal_dir = config.get_journal_dir()
-							local format = workspace_config.weekly_format or "%Y-%m-%d-W%V.md"
-							local filename = os.date(format, date)
-							local filepath = journal_dir .. "/" .. filename
-
-							utils.ensure_dir(journal_dir)
-							utils.open_file_in_buffer(filepath)
-
-							-- Apply template if file is new
-							if vim.fn.filereadable(filepath) == 0 then
-								local template_path = workspace_config.weekly_template
-								if template_path then
-									local full_template_path = utils.expand_path(template_path, workspace_config.root_dir)
-									if vim.fn.filereadable(full_template_path) == 1 then
-										local template_content = vim.fn.readfile(full_template_path)
-										local template_str = table.concat(template_content, "\n")
-										local processed = require("zournal.template").process_template(
-											template_str,
-											{ date = date }
-										)
-										vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(processed, "\n"))
-									end
-								end
-							end
-						end
-					end
-				end)
-
-				map("i", "<C-m>", function()
-					actions.close(prompt_bufnr)
-					local selection = action_state.get_selected_entry()
-					if selection then
-						-- Parse date and create monthly journal
-						local date = utils.parse_date(selection.date_str)
-						if date then
-							local workspace_config = config.get()
-							local journal_dir = config.get_journal_dir()
-							local format = workspace_config.monthly_format or "%Y-%m.md"
-							local filename = os.date(format, date)
-							local filepath = journal_dir .. "/" .. filename
-
-							utils.ensure_dir(journal_dir)
-							utils.open_file_in_buffer(filepath)
-
-							-- Apply template if file is new
-							if vim.fn.filereadable(filepath) == 0 then
-								local template_path = workspace_config.monthly_template
-								if template_path then
-									local full_template_path = utils.expand_path(template_path, workspace_config.root_dir)
-									if vim.fn.filereadable(full_template_path) == 1 then
-										local template_content = vim.fn.readfile(full_template_path)
-										local template_str = table.concat(template_content, "\n")
-										local processed = require("zournal.template").process_template(
-											template_str,
-											{ date = date }
-										)
-										vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(processed, "\n"))
-									end
-								end
-							end
-						end
 					end
 				end)
 

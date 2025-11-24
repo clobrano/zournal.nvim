@@ -367,10 +367,7 @@ Content here...
 :ZournalCalendar
 " Shows dates with status: [Daily/Weekly/Monthly] or [New]
 " Press Enter to open daily journal for selected date
-" Press Ctrl+d to open daily journal
-" Press Ctrl+w to open weekly journal
-" Press Ctrl+m to open monthly journal
-" Use fuzzy search to find specific dates
+" Use fuzzy search to find specific dates (e.g., "2024-01-15" or "January")
 ```
 
 ### Creating Zettelkasten Notes
