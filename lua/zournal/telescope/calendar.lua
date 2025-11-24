@@ -98,17 +98,10 @@ local function get_journal_preview(date_str)
 	return ""
 end
 
--- Generate a list of dates for the calendar view (newest to oldest)
-local function generate_date_list(days_back, days_forward)
+-- Generate a list of dates for the calendar view (newest to oldest, today and past only)
+local function generate_date_list(days_back)
 	local dates = {}
 	local today = os.time()
-
-	-- Generate future dates (newest first)
-	for i = days_forward, 1, -1 do
-		local date_time = today + (i * 24 * 60 * 60)
-		local date_str = os.date("%Y-%m-%d", date_time)
-		table.insert(dates, date_str)
-	end
 
 	-- Generate today and past dates (newest to oldest)
 	for i = 0, days_back do
@@ -192,8 +185,7 @@ end
 -- Open calendar view
 function M.show_calendar(opts)
 	opts = opts or {}
-	local days_back = opts.days_back or 365 -- Default: 1 year back
-	local days_forward = opts.days_forward or 30 -- Default: 30 days forward
+	local days_back = opts.days_back or 365 -- Default: 1 year back (today and past only)
 
 	-- Check if workspace is configured
 	local workspace_config = config.get()
@@ -202,8 +194,8 @@ function M.show_calendar(opts)
 		return
 	end
 
-	-- Generate date list
-	local dates = generate_date_list(days_back, days_forward)
+	-- Generate date list (today and past only)
+	local dates = generate_date_list(days_back)
 
 	-- Create Telescope picker
 	pickers
