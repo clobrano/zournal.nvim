@@ -185,7 +185,7 @@ end
 -- Open calendar view
 function M.show_calendar(opts)
 	opts = opts or {}
-	local days_back = opts.days_back or 3650 -- Default: 10 years back (today and past only)
+	local days_back = opts.days_back or 1825 -- Default: 5 years back (today and past only)
 
 	-- Check if workspace is configured
 	local workspace_config = config.get()
