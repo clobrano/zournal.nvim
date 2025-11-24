@@ -141,6 +141,12 @@ function M.setup(opts)
 
     -- Merge with defaults and expand paths
     local workspace_config = deep_merge(workspace_defaults, workspace_opts)
+
+    -- Normalize week_numbering_system to lowercase
+    if workspace_config.week_numbering_system then
+      workspace_config.week_numbering_system = string.lower(workspace_config.week_numbering_system)
+    end
+
     M.workspaces[name] = expand_workspace_paths(workspace_config)
   end
 

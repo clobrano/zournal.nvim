@@ -162,6 +162,9 @@ function M.get_iso_week(date, system)
     system = cfg.week_numbering_system or "iso8601"
   end
 
+  -- Normalize to lowercase for case-insensitive comparison
+  system = string.lower(system)
+
   if system == "gregorian" then
     return calculate_gregorian_week(date)
   else

@@ -178,7 +178,7 @@ Each workspace supports the following options:
 | `virtual_text_enabled` | `false` | Enable virtual text showing original tag content for references |
 | `virtual_text_format` | `'→ "%s"'` | Format string for virtual text (`%s` = original line content) |
 | `tag_cache_ttl` | `300` | Tag cache time-to-live in seconds (5 minutes) |
-| `week_numbering_system` | `"iso8601"` | Week numbering system: `"iso8601"` (week containing first Thursday) or `"gregorian"` (week containing Jan 1) |
+| `week_numbering_system` | `"iso8601"` | Week numbering system: `"iso8601"` (week containing first Thursday) or `"gregorian"` (week containing Jan 1). Case-insensitive. |
 
 ### Week Numbering Systems
 
@@ -202,7 +202,7 @@ require('zournal').setup({
   workspaces = {
     personal = {
       root_dir = "~/notes/",
-      week_numbering_system = "gregorian",  -- or "iso8601" (default)
+      week_numbering_system = "gregorian",  -- or "iso8601" (default), case-insensitive
       -- ... other options
     },
   },
