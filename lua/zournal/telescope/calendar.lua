@@ -157,9 +157,9 @@ local function make_entry(date_str)
 
 	local display_str
 	if preview ~= "" then
-		display_str = string.format("%s %s - %s", status, formatted_date, preview)
+		display_str = string.format("%s | %s %s | Preview: %s", date_str, formatted_date, status, preview)
 	else
-		display_str = string.format("%s %s", status, formatted_date)
+		display_str = string.format("%s | %s %s", date_str, formatted_date, status)
 	end
 
 	-- Determine which file to preview (prefer daily, then weekly, then monthly)
@@ -175,7 +175,7 @@ local function make_entry(date_str)
 	return {
 		value = date_str,
 		display = display_str,
-		ordinal = date_str, -- Use only date for consistent sorting
+		ordinal = date_str .. " " .. formatted_date, -- Search by date or day name
 		date_str = date_str,
 		exists = exists,
 		filename = preview_file, -- For Telescope preview
