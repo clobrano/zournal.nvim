@@ -98,21 +98,21 @@ local function get_journal_preview(date_str)
 	return ""
 end
 
--- Generate a list of dates for the calendar view
+-- Generate a list of dates for the calendar view (newest to oldest)
 local function generate_date_list(days_back, days_forward)
 	local dates = {}
 	local today = os.time()
 
-	-- Generate past dates
-	for i = days_back, 0, -1 do
-		local date_time = today - (i * 24 * 60 * 60)
+	-- Generate future dates (newest first)
+	for i = days_forward, 1, -1 do
+		local date_time = today + (i * 24 * 60 * 60)
 		local date_str = os.date("%Y-%m-%d", date_time)
 		table.insert(dates, date_str)
 	end
 
-	-- Generate future dates
-	for i = 1, days_forward do
-		local date_time = today + (i * 24 * 60 * 60)
+	-- Generate today and past dates (newest to oldest)
+	for i = 0, days_back do
+		local date_time = today - (i * 24 * 60 * 60)
 		local date_str = os.date("%Y-%m-%d", date_time)
 		table.insert(dates, date_str)
 	end
@@ -182,7 +182,7 @@ local function make_entry(date_str)
 	return {
 		value = date_str,
 		display = display_str,
-		ordinal = date_str .. " " .. formatted_date,
+		ordinal = date_str, -- Use only date for consistent sorting
 		date_str = date_str,
 		exists = exists,
 		filename = preview_file, -- For Telescope preview
