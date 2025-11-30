@@ -258,6 +258,8 @@ Templates support the following variables:
 - `{{month}}` - Current month
 - `{{day}}` - Current day
 - `{{week}}` - Current ISO week number
+- `{{day_of_week_short}}` - Day of week (abbreviated, e.g., Mon, Tue)
+- `{{day_of_week_long}}` - Day of week (full, e.g., Monday, Tuesday)
 
 **Note**: Journal notes (daily/weekly/monthly/inbox) do NOT have frontmatter by default.
 
