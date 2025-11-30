@@ -120,6 +120,12 @@ function M.apply_template(template_path, variables, default_template)
   if not variables.week then
     variables.week = tostring(utils.get_iso_week())
   end
+  if not variables.day_of_week_short then
+    variables.day_of_week_short = utils.format_date("%a")
+  end
+  if not variables.day_of_week_long then
+    variables.day_of_week_long = utils.format_date("%A")
+  end
 
   -- Load template
   local template_content = M.load_template(template_path)
