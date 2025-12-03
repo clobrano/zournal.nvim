@@ -113,10 +113,50 @@ end
 -- Inbox Note (6.4)
 -- ============================================================================
 
+--- Find next available root zid
+---@return string next_root_zid
+local function find_next_root_zid()
+  local frontmatter = require("zournal.frontmatter")
+  local cfg = config.get()
+  local files = utils.find_files_with_pattern(cfg.root_dir, "%.md$")
+
+  -- Collect all root zids (single numbers)
+  local root_zids = {}
+  for _, file_path in ipairs(files) do
+    local zid = frontmatter.get_zid(file_path)
+    if zid then
+      zid = tostring(zid)
+      -- Check if it's a root zid (only digits, no letters)
+      if zid:match("^%d+$") then
+        table.insert(root_zids, tonumber(zid))
+      end
+    end
+  end
+
+  -- Find next available root zid
+  if #root_zids == 0 then
+    return "1"
+  end
+
+  -- Sort to find gaps
+  table.sort(root_zids)
+
+  -- Check for gaps
+  for i = 1, #root_zids do
+    if root_zids[i] ~= i then
+      return tostring(i)
+    end
+  end
+
+  -- No gaps, return next number
+  return tostring(#root_zids + 1)
+end
+
 --- Create inbox note with user-provided title
 ---@return boolean success
 function M.create_inbox_note()
   local cfg = config.get()
+  local frontmatter = require("zournal.frontmatter")
 
   -- Prompt user for filename/title
   local title = vim.fn.input("Note title: ")
@@ -140,8 +180,19 @@ function M.create_inbox_note()
 
   -- Check if file exists; if not, create from template
   if not utils.file_exists(file_path) then
-    local content = template.apply_inbox_template(cfg.inbox_template, { title = title })
-    utils.write_file(file_path, content)
+    -- Find next available root zid
+    local next_zid = find_next_root_zid()
+
+    -- Create title line
+    local title_line = "# " .. title
+
+    -- Create frontmatter with zid and creation date
+    frontmatter.update_frontmatter(file_path, {
+      zid = next_zid,
+      created = os.date("%Y-%m-%d"),
+    }, title_line)
+
+    vim.notify("Created inbox note with zid: " .. next_zid .. " - " .. filename, vim.log.levels.INFO)
   else
     vim.notify("Note already exists: " .. filename, vim.log.levels.WARN)
   end
