@@ -156,7 +156,7 @@ local function find_next_root_zid()
 
   -- No gaps found, try next sequential number
   local next_num = #root_zids + 1
-  while next_num <= 1000 do -- Safety limit
+  while next_num <= 10000 do -- Safety limit to prevent infinite loops
     local candidate = tostring(next_num)
     local is_unique = zettelkasten.is_zid_unique(candidate)
     if is_unique then
@@ -165,8 +165,9 @@ local function find_next_root_zid()
     next_num = next_num + 1
   end
 
-  -- Fallback (should never happen)
-  return tostring(os.time())
+  -- If we reach here, something is seriously wrong
+  -- Return nil so caller can handle the error
+  return nil
 end
 
 --- Create inbox note with user-provided title
@@ -199,6 +200,16 @@ function M.create_inbox_note()
   if not utils.file_exists(file_path) then
     -- Find next available root zid
     local next_zid = find_next_root_zid()
+
+    if not next_zid then
+      vim.notify(
+        "Unable to generate unique zid for inbox note.\n" ..
+        "This might indicate too many root-level notes (>10000).\n" ..
+        "Consider organizing notes using child notes (ZournalNewChild).",
+        vim.log.levels.ERROR
+      )
+      return false
+    end
 
     -- Create title line
     local title_line = "# " .. title
