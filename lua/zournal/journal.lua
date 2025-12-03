@@ -113,10 +113,11 @@ end
 -- Inbox Note (6.4)
 -- ============================================================================
 
---- Find next available root zid
+--- Find next available root zid that is unique
 ---@return string next_root_zid
 local function find_next_root_zid()
   local frontmatter = require("zournal.frontmatter")
+  local zettelkasten = require("zournal.zettelkasten")
   local cfg = config.get()
   local files = utils.find_files_with_pattern(cfg.root_dir, "%.md$")
 
@@ -141,15 +142,31 @@ local function find_next_root_zid()
   -- Sort to find gaps
   table.sort(root_zids)
 
-  -- Check for gaps
+  -- Check for gaps first (fill gaps in sequence)
   for i = 1, #root_zids do
     if root_zids[i] ~= i then
-      return tostring(i)
+      local candidate = tostring(i)
+      -- Verify it's actually unique (double-check)
+      local is_unique = zettelkasten.is_zid_unique(candidate)
+      if is_unique then
+        return candidate
+      end
     end
   end
 
-  -- No gaps, return next number
-  return tostring(#root_zids + 1)
+  -- No gaps found, try next sequential number
+  local next_num = #root_zids + 1
+  while next_num <= 1000 do -- Safety limit
+    local candidate = tostring(next_num)
+    local is_unique = zettelkasten.is_zid_unique(candidate)
+    if is_unique then
+      return candidate
+    end
+    next_num = next_num + 1
+  end
+
+  -- Fallback (should never happen)
+  return tostring(os.time())
 end
 
 --- Create inbox note with user-provided title
