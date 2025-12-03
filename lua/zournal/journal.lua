@@ -113,10 +113,68 @@ end
 -- Inbox Note (6.4)
 -- ============================================================================
 
+--- Find next available root zid that is unique
+---@return string next_root_zid
+local function find_next_root_zid()
+  local frontmatter = require("zournal.frontmatter")
+  local zettelkasten = require("zournal.zettelkasten")
+  local cfg = config.get()
+  local files = utils.find_files_with_pattern(cfg.root_dir, "%.md$")
+
+  -- Collect all root zids (single numbers)
+  local root_zids = {}
+  for _, file_path in ipairs(files) do
+    local zid = frontmatter.get_zid(file_path)
+    if zid then
+      zid = tostring(zid)
+      -- Check if it's a root zid (only digits, no letters)
+      if zid:match("^%d+$") then
+        table.insert(root_zids, tonumber(zid))
+      end
+    end
+  end
+
+  -- Find next available root zid
+  if #root_zids == 0 then
+    return "1"
+  end
+
+  -- Sort to find gaps
+  table.sort(root_zids)
+
+  -- Check for gaps first (fill gaps in sequence)
+  for i = 1, #root_zids do
+    if root_zids[i] ~= i then
+      local candidate = tostring(i)
+      -- Verify it's actually unique (double-check)
+      local is_unique = zettelkasten.is_zid_unique(candidate)
+      if is_unique then
+        return candidate
+      end
+    end
+  end
+
+  -- No gaps found, try next sequential number
+  local next_num = #root_zids + 1
+  while next_num <= 10000 do -- Safety limit to prevent infinite loops
+    local candidate = tostring(next_num)
+    local is_unique = zettelkasten.is_zid_unique(candidate)
+    if is_unique then
+      return candidate
+    end
+    next_num = next_num + 1
+  end
+
+  -- If we reach here, something is seriously wrong
+  -- Return nil so caller can handle the error
+  return nil
+end
+
 --- Create inbox note with user-provided title
 ---@return boolean success
 function M.create_inbox_note()
   local cfg = config.get()
+  local frontmatter = require("zournal.frontmatter")
 
   -- Prompt user for filename/title
   local title = vim.fn.input("Note title: ")
@@ -140,8 +198,29 @@ function M.create_inbox_note()
 
   -- Check if file exists; if not, create from template
   if not utils.file_exists(file_path) then
-    local content = template.apply_inbox_template(cfg.inbox_template, { title = title })
-    utils.write_file(file_path, content)
+    -- Find next available root zid
+    local next_zid = find_next_root_zid()
+
+    if not next_zid then
+      vim.notify(
+        "Unable to generate unique zid for inbox note.\n" ..
+        "This might indicate too many root-level notes (>10000).\n" ..
+        "Consider organizing notes using child notes (ZournalNewChild).",
+        vim.log.levels.ERROR
+      )
+      return false
+    end
+
+    -- Create title line
+    local title_line = "# " .. title
+
+    -- Create frontmatter with zid and creation date
+    frontmatter.update_frontmatter(file_path, {
+      zid = next_zid,
+      created = os.date("%Y-%m-%d"),
+    }, title_line)
+
+    vim.notify("Created inbox note with zid: " .. next_zid .. " - " .. filename, vim.log.levels.INFO)
   else
     vim.notify("Note already exists: " .. filename, vim.log.levels.WARN)
   end

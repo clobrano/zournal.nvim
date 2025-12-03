@@ -63,9 +63,10 @@ local function serialize_yaml(data)
 end
 
 --- Parse frontmatter from file content
---- Supports two formats:
---- 1. After first header: # Title\n---\nkey: value\n---\nContent
---- 2. At file start (legacy): ---\nkey: value\n---\n# Title\nContent
+--- Supports multiple formats:
+--- 1. After first header with backticks (current): # Title\n```\nkey: value\n```\nContent
+--- 2. After first header with dashes (legacy): # Title\n\n---\nkey: value\n---\nContent
+--- 3. At file start (legacy): ---\nkey: value\n---\n# Title\nContent
 ---@param content string File content
 ---@return table result Table with 'frontmatter', 'body', and 'title' keys
 function M.parse_frontmatter(content)
@@ -73,9 +74,21 @@ function M.parse_frontmatter(content)
     return { frontmatter = {}, body = "", title = "" }
   end
 
-  -- Try to match frontmatter after first header (new format)
+  -- Try to match frontmatter after first header (new format with backticks, no extra newline)
+  -- Pattern: # Title\n```\nYAML\n```\nBody
+  local title, yaml_content, body = content:match("^(#[^\n]+)\n```\n(.-)\n```\n(.*)$")
+
+  if title and yaml_content then
+    return {
+      frontmatter = parse_yaml(yaml_content),
+      body = body,
+      title = title,
+    }
+  end
+
+  -- Try to match frontmatter after first header (legacy format with dashes)
   -- Pattern: # Title\n\n---\nYAML\n---\nBody
-  local title, yaml_content, body = content:match("^(#[^\n]+)\n+%-%-%-\n(.-)%-%-%-\n(.*)$")
+  title, yaml_content, body = content:match("^(#[^\n]+)\n+%-%-%-\n(.-)%-%-%-\n(.*)$")
 
   if title and yaml_content then
     return {
@@ -122,11 +135,11 @@ function M.serialize_frontmatter(data, title)
   end
 
   local yaml = serialize_yaml(data)
-  local frontmatter_block = "---\n" .. yaml .. "\n---\n"
+  local frontmatter_block = "```\n" .. yaml .. "\n```\n"
 
   if title and title ~= "" then
-    -- Place frontmatter after title
-    return title .. "\n\n" .. frontmatter_block
+    -- Place frontmatter after title (no extra newline)
+    return title .. "\n" .. frontmatter_block
   else
     -- No title, return frontmatter at start (legacy behavior)
     return frontmatter_block
