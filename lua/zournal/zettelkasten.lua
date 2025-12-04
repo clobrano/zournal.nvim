@@ -59,7 +59,7 @@ end
 -- ZID Parsing Functions (7.2)
 -- ============================================================================
 
---- Get parent zid by removing last segment
+--- Get parent zid by removing last character
 ---@param zid string|number
 ---@return string|nil parent_zid
 function M.get_parent_zid(zid)
@@ -70,13 +70,13 @@ function M.get_parent_zid(zid)
   -- Convert to string if it's a number
   zid = tostring(zid)
 
-  -- If root (single number), no parent
+  -- If it's only digits (root), no parent
   if zid:match("^%d+$") then
     return nil
   end
 
-  -- Remove last segment (either a letter or a number)
-  -- Examples: 1a3 -> 1a, 1a -> 1, 1a3c -> 1a3
+  -- Remove last character
+  -- Examples: 50a -> 50, 50a1 -> 50a, 50a1b -> 50a1
   local parent = zid:sub(1, -2)
   return parent
 end
@@ -298,7 +298,7 @@ end
 
 --- Get all children of a parent zid
 ---@param parent_zid string|number
----@return table children List of {path, zid} tables
+---@return table children List of {path, zid} tables sorted by zid
 function M.get_children(parent_zid)
   if not M.is_valid_zid(parent_zid) then
     return {}
@@ -309,36 +309,30 @@ function M.get_children(parent_zid)
 
   local files = find_all_markdown_files()
   local children = {}
-  local parent_segments = parse_segments(parent_zid)
+  local parent_len = #parent_zid
 
   for _, file_path in ipairs(files) do
     local zid = frontmatter.get_zid(file_path)
     if zid then
       zid = tostring(zid) -- Ensure zid is a string
-      local zid_segments = parse_segments(zid)
-      -- Child has exactly one more segment than parent
-      if #zid_segments == #parent_segments + 1 then
-        -- Check if all parent segments match
-        local matches = true
-        for i = 1, #parent_segments do
-          if zid_segments[i] ~= parent_segments[i] then
-            matches = false
-            break
-          end
-        end
-        if matches then
-          table.insert(children, { path = file_path, zid = zid })
-        end
+      -- Child has parent as prefix and is exactly 1 character longer
+      if #zid == parent_len + 1 and zid:sub(1, parent_len) == parent_zid then
+        table.insert(children, { path = file_path, zid = zid })
       end
     end
   end
+
+  -- Sort by zid
+  table.sort(children, function(a, b)
+    return a.zid < b.zid
+  end)
 
   return children
 end
 
 --- Get all siblings of a zid
 ---@param zid string|number
----@return table siblings List of {path, zid} tables
+---@return table siblings List of {path, zid} tables sorted by zid
 function M.get_siblings(zid)
   if not M.is_valid_zid(zid) then
     return {}
@@ -350,22 +344,27 @@ function M.get_siblings(zid)
   -- Get parent and find its children (excluding self)
   local parent_zid = M.get_parent_zid(zid)
   if not parent_zid then
-    -- Root note - find all other root notes
+    -- Root note - find all other root notes (same length, no parent)
     local files = find_all_markdown_files()
     local siblings = {}
+    local zid_len = #zid
     for _, file_path in ipairs(files) do
       local other_zid = frontmatter.get_zid(file_path)
       if other_zid then
         other_zid = tostring(other_zid)
-        if other_zid ~= zid and M.get_parent_zid(other_zid) == nil then
+        if other_zid ~= zid and #other_zid == zid_len and M.get_parent_zid(other_zid) == nil then
           table.insert(siblings, { path = file_path, zid = other_zid })
         end
       end
     end
+    -- Sort by zid
+    table.sort(siblings, function(a, b)
+      return a.zid < b.zid
+    end)
     return siblings
   end
 
-  -- Get all children of parent
+  -- Get all children of parent (excluding self)
   local parent_children = M.get_children(parent_zid)
   local siblings = {}
   for _, child in ipairs(parent_children) do
@@ -374,6 +373,7 @@ function M.get_siblings(zid)
     end
   end
 
+  -- Already sorted by get_children
   return siblings
 end
 
