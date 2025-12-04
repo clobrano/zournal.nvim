@@ -60,12 +60,15 @@ end
 -- ============================================================================
 
 --- Get parent zid by removing last segment
----@param zid string
+---@param zid string|number
 ---@return string|nil parent_zid
 function M.get_parent_zid(zid)
   if not M.is_valid_zid(zid) then
     return nil
   end
+
+  -- Convert to string if it's a number
+  zid = tostring(zid)
 
   -- If root (single number), no parent
   if zid:match("^%d+$") then
@@ -79,12 +82,15 @@ function M.get_parent_zid(zid)
 end
 
 --- Get root zid (first number)
----@param zid string
+---@param zid string|number
 ---@return string|nil root_zid
 function M.get_root_zid(zid)
   if not M.is_valid_zid(zid) then
     return nil
   end
+
+  -- Convert to string if it's a number
+  zid = tostring(zid)
 
   -- Extract leading digits
   local root = zid:match("^(%d+)")
@@ -291,12 +297,15 @@ function M.find_notes_by_zid_pattern(pattern)
 end
 
 --- Get all children of a parent zid
----@param parent_zid string
+---@param parent_zid string|number
 ---@return table children List of {path, zid} tables
 function M.get_children(parent_zid)
   if not M.is_valid_zid(parent_zid) then
     return {}
   end
+
+  -- Convert to string if it's a number
+  parent_zid = tostring(parent_zid)
 
   local files = find_all_markdown_files()
   local children = {}
@@ -328,12 +337,15 @@ function M.get_children(parent_zid)
 end
 
 --- Get all siblings of a zid
----@param zid string
+---@param zid string|number
 ---@return table siblings List of {path, zid} tables
 function M.get_siblings(zid)
   if not M.is_valid_zid(zid) then
     return {}
   end
+
+  -- Convert to string if it's a number
+  zid = tostring(zid)
 
   -- Get parent and find its children (excluding self)
   local parent_zid = M.get_parent_zid(zid)
@@ -366,12 +378,15 @@ function M.get_siblings(zid)
 end
 
 --- Get parent note
----@param zid string
+---@param zid string|number
 ---@return table|nil parent {path, zid} or nil if no parent
 function M.get_parent(zid)
   if not M.is_valid_zid(zid) then
     return nil
   end
+
+  -- Convert to string if it's a number
+  zid = tostring(zid)
 
   local parent_zid = M.get_parent_zid(zid)
   if not parent_zid then
