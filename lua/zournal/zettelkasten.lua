@@ -10,10 +10,19 @@ local frontmatter = require("zournal.frontmatter")
 -- ============================================================================
 
 --- Check if zid is valid (alternating number/letter pattern)
----@param zid string
+---@param zid string|number
 ---@return boolean
 function M.is_valid_zid(zid)
-  if not zid or type(zid) ~= "string" or zid == "" then
+  if not zid then
+    return false
+  end
+
+  -- Convert to string if it's a number (frontmatter may store numeric zids as numbers)
+  if type(zid) == "number" then
+    zid = tostring(zid)
+  end
+
+  if type(zid) ~= "string" or zid == "" then
     return false
   end
 
