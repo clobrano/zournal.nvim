@@ -311,13 +311,29 @@ function M.get_children(parent_zid)
   local children = {}
   local parent_len = #parent_zid
 
+  -- Determine what a valid child suffix looks like
+  local parent_ends_with_digit = parent_zid:match("%d$")
+
   for _, file_path in ipairs(files) do
     local zid = frontmatter.get_zid(file_path)
     if zid then
       zid = tostring(zid) -- Ensure zid is a string
-      -- Child has parent as prefix and is exactly 1 character longer
-      if #zid == parent_len + 1 and zid:sub(1, parent_len) == parent_zid then
-        table.insert(children, { path = file_path, zid = zid })
+      -- Child must start with parent
+      if zid:sub(1, parent_len) == parent_zid and #zid > parent_len then
+        local suffix = zid:sub(parent_len + 1)
+        local is_child = false
+
+        if parent_ends_with_digit then
+          -- Parent ends with digit, so child must add exactly one letter
+          is_child = suffix:match("^%a$") ~= nil
+        else
+          -- Parent ends with letter, so child must add only digits
+          is_child = suffix:match("^%d+$") ~= nil
+        end
+
+        if is_child then
+          table.insert(children, { path = file_path, zid = zid })
+        end
       end
     end
   end
