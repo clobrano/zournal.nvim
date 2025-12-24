@@ -11,9 +11,12 @@ M.utils = require('zournal.utils')
 M.frontmatter = require('zournal.frontmatter')
 M.template = require('zournal.template')
 M.virtual_text = require('zournal.virtual_text')
-M.telescope = {
-  relations = require('zournal.telescope.relations'),
-  links = require('zournal.telescope.links'),
+M.picker = require('zournal.picker')
+M.pickers = {
+  relations = require('zournal.pickers.relations'),
+  links = require('zournal.pickers.links'),
+  tag_references = require('zournal.pickers.tag_references'),
+  calendar = require('zournal.pickers.calendar'),
 }
 
 -- Setup workspace detection autocmds

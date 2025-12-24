@@ -48,6 +48,10 @@ M.workspaces = {}
 -- Currently active workspace name
 M.active_workspace = nil
 
+-- Picker backend configuration
+-- Can be 'auto', 'telescope', or 'fzflua'
+M.picker_backend = 'auto'
+
 -- Helper function to deep merge tables
 local function deep_merge(base, override)
   local result = vim.deepcopy(base)
@@ -92,6 +96,21 @@ end
 -- BREAKING CHANGE: Requires workspaces table
 function M.setup(opts)
   opts = opts or {}
+
+  -- Set picker backend (global option)
+  if opts.picker_backend then
+    local valid_backends = { auto = true, telescope = true, fzflua = true }
+    if valid_backends[opts.picker_backend] then
+      M.picker_backend = opts.picker_backend
+    else
+      vim.notify(
+        string.format("zournal.nvim: Invalid picker_backend '%s'. Must be 'auto', 'telescope', or 'fzflua'. Using 'auto'.",
+          tostring(opts.picker_backend)),
+        vim.log.levels.WARN
+      )
+      M.picker_backend = 'auto'
+    end
+  end
 
   -- Require workspaces table
   if not opts.workspaces or type(opts.workspaces) ~= "table" or vim.tbl_isempty(opts.workspaces) then

@@ -46,12 +46,20 @@ A Neovim plugin for journaling with Zettelkasten-style note-taking capabilities.
 {
   "your-username/zournal.nvim",
   dependencies = {
-    "nvim-telescope/telescope.nvim",
+    -- Picker: Choose ONE of the following (or both)
+    "nvim-telescope/telescope.nvim",  -- Option 1: Telescope (recommended)
+    -- OR
+    -- "ibhagwan/fzf-lua",             -- Option 2: FzfLua (faster alternative)
+
+    -- Required dependencies
     "nvim-lua/plenary.nvim",
     "nvim-treesitter/nvim-treesitter",
   },
   config = function()
     require('zournal').setup({
+      -- Optional: specify picker backend (default: 'auto')
+      -- picker_backend = 'auto',  -- 'auto', 'telescope', or 'fzflua'
+
       -- Configuration options (see Configuration section)
     })
   end,
@@ -64,12 +72,18 @@ A Neovim plugin for journaling with Zettelkasten-style note-taking capabilities.
 use {
   'your-username/zournal.nvim',
   requires = {
-    'nvim-telescope/telescope.nvim',
+    -- Picker: Choose ONE (or both)
+    'nvim-telescope/telescope.nvim',  -- Option 1: Telescope
+    -- OR
+    -- 'ibhagwan/fzf-lua',             -- Option 2: FzfLua
+
+    -- Required
     'nvim-lua/plenary.nvim',
     'nvim-treesitter/nvim-treesitter',
   },
   config = function()
     require('zournal').setup({
+      -- picker_backend = 'auto',  -- Optional: 'auto', 'telescope', or 'fzflua'
       -- Configuration options
     })
   end
@@ -79,7 +93,12 @@ use {
 ### vim-plug
 
 ```vim
-Plug 'nvim-telescope/telescope.nvim'
+" Picker: Choose ONE (or both)
+Plug 'nvim-telescope/telescope.nvim'  " Option 1: Telescope
+" OR
+" Plug 'ibhagwan/fzf-lua'             " Option 2: FzfLua
+
+" Required
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-treesitter/nvim-treesitter'
 Plug 'your-username/zournal.nvim'
@@ -87,6 +106,7 @@ Plug 'your-username/zournal.nvim'
 " In your init.vim or init.lua:
 lua << EOF
 require('zournal').setup({
+  -- picker_backend = 'auto',  -- Optional: 'auto', 'telescope', or 'fzflua'
   -- Configuration options
 })
 EOF
@@ -132,6 +152,10 @@ Here's an example with multiple workspaces:
 
 ```lua
 require('zournal').setup({
+  -- Picker backend configuration (optional, global setting)
+  picker_backend = 'auto',  -- 'auto', 'telescope', or 'fzflua'
+
+  -- Workspace configurations
   workspaces = {
     personal = {
       root_dir = "~/notes/",
@@ -179,6 +203,35 @@ Each workspace supports the following options:
 | `virtual_text_format` | `'→ "%s"'` | Format string for virtual text (`%s` = original line content) |
 | `tag_cache_ttl` | `300` | Tag cache time-to-live in seconds (5 minutes) |
 | `week_numbering_system` | `"iso8601"` | Week numbering system: `"iso8601"` (week containing first Thursday) or `"gregorian"` (week containing Jan 1). Case-insensitive. |
+
+### Picker Backend Configuration
+
+Zournal supports both Telescope and FzfLua as picker backends. You can configure which one to use:
+
+**Global Option (outside workspaces):**
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `picker_backend` | `"auto"` | Picker backend to use: `"auto"`, `"telescope"`, or `"fzflua"` |
+
+**Backend Selection:**
+
+- `"auto"` (default) - Auto-detect available picker. Prefers Telescope if both are installed
+- `"telescope"` - Force Telescope backend (error if not installed)
+- `"fzflua"` - Force FzfLua backend (error if not installed)
+
+**Example:**
+
+```lua
+require('zournal').setup({
+  picker_backend = 'fzflua',  -- Use FzfLua instead of Telescope
+  workspaces = {
+    -- ... workspace configs
+  },
+})
+```
+
+**Note:** FzfLua is generally faster for large datasets and has a smaller dependency footprint, while Telescope offers more customization options and a more Neovim-native feel.
 
 ### Week Numbering Systems
 
@@ -565,9 +618,17 @@ The tagging system requires the `uuidgen` command.
 
 ## Dependencies
 
-- [Telescope](https://github.com/nvim-telescope/telescope.nvim) - Fuzzy finder and picker UI
+### Required
+
 - [Plenary](https://github.com/nvim-lua/plenary.nvim) - Lua utility functions
 - [Treesitter](https://github.com/nvim-treesitter/nvim-treesitter) - Syntax parsing
+
+### Picker (Choose One)
+
+- [Telescope](https://github.com/nvim-telescope/telescope.nvim) - Fuzzy finder and picker UI (recommended, default)
+- [FzfLua](https://github.com/ibhagwan/fzf-lua) - Faster alternative fuzzy finder
+
+**Note:** You must install at least one picker backend. Zournal will auto-detect which one you have installed. If you have both, it will prefer Telescope by default (configurable via `picker_backend` option).
 
 ## Migration
 

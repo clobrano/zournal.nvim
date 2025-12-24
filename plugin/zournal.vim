@@ -18,15 +18,15 @@ command! ZournalNewSibling lua require('zournal.zettelkasten').create_sibling_no
 command! ZournalAddParent lua require('zournal.zettelkasten').add_parent_relationship()
 command! ZournalValidateZids lua require('zournal.zettelkasten').validate_zids_command()
 
-" Telescope integration commands
-command! ZournalRelations lua require('zournal.telescope.relations').pick_relations()
-command! ZournalLinks lua require('zournal.telescope.links').pick_links()
-command! ZournalCalendar lua require('zournal.telescope.calendar').show_calendar()
+" Picker commands (supports Telescope and FzfLua)
+command! ZournalRelations lua require('zournal.pickers.relations').pick_relations()
+command! ZournalLinks lua require('zournal.pickers.links').pick_links()
+command! ZournalCalendar lua require('zournal.pickers.calendar').show_calendar()
 
 " Tagging commands
 command! ZournalTagAdd lua require('zournal.tags').add_tag()
 command! ZournalTagCopy lua require('zournal.tags').copy_tag_reference()
-command! ZournalTagReferences lua require('zournal.telescope.tag_references').pick_tag_references()
+command! ZournalTagReferences lua require('zournal.pickers.tag_references').pick_tag_references()
 command! ZournalTagFollow lua require('zournal.tags').follow_tag()
 
 " Virtual text commands
