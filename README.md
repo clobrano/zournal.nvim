@@ -15,9 +15,9 @@ A Neovim plugin for journaling with Zettelkasten-style note-taking capabilities.
 - **Calendar View**: Interactive calendar picker to browse and navigate to journal entries across dates
 
 ### Zettelkasten System
-- **Hierarchical IDs**: Notes use alternating number/character zids (e.g., `1a`, `1b3c5`)
+- **Hierarchical IDs**: Notes use dash-separated number zids (e.g., `1-1`, `1-2-3-5`)
 - **Relationship Navigation**: Create child notes, sibling notes, and parent relationships
-- **Gap Filling**: Automatically fills gaps in sequences (prefers `1a2` if `1a1` and `1a3` exist)
+- **Gap Filling**: Automatically fills gaps in sequences (prefers `1-1-2` if `1-1-1` and `1-1-3` exist)
 - **Extract and Link**: Select text in visual mode to extract it into a new child/sibling note with automatic WikiLink replacement
 - **Telescope Integration**: Browse parent, siblings, and children with full preview
 
@@ -394,14 +394,14 @@ Content here...
    ```vim
    " From note with zid: 1
    :ZournalNewChild
-   " Creates note with zid: 1a
+   " Creates note with zid: 1-1
    ```
 
 3. Create sibling notes:
    ```vim
-   " From note with zid: 1a
+   " From note with zid: 1-1
    :ZournalNewSibling
-   " Creates note with zid: 1b
+   " Creates note with zid: 1-2
    ```
 
 4. Extract text to new note:
@@ -507,22 +507,22 @@ vim.keymap.set('n', 'gf', '<cmd>ZournalFollowLink<cr>', { desc = 'Follow Link' }
 
 ## Understanding Zettelkasten IDs
 
-zournal.nvim uses a hierarchical ID system:
+zournal.nvim uses a hierarchical ID system with dash-separated numbers:
 
 - **Root notes**: Single numbers (`1`, `2`, `3`)
-- **First-level children**: Root + letter (`1a`, `1b`, `2a`)
-- **Second-level children**: First-level + number (`1a1`, `1a2`, `2a1`)
-- **Third-level children**: Second-level + letter (`1a1a`, `1a2b`)
-- Pattern continues: number → letter → number → letter...
+- **First-level children**: Root + dash + number (`1-1`, `1-2`, `2-1`)
+- **Second-level children**: First-level + dash + number (`1-1-1`, `1-1-2`, `2-1-1`)
+- **Third-level children**: Second-level + dash + number (`1-1-1-1`, `1-1-2-2`)
+- Pattern continues: each level adds another dash and number
 
 **Relationships**:
-- `1a` is a child of `1`
-- `1a` and `1b` are siblings (same parent `1`)
-- `1a1` and `1a2` are siblings (same parent `1a`)
-- `1a1` is a child of `1a`, which is a child of `1`
+- `1-1` is a child of `1`
+- `1-1` and `1-2` are siblings (same parent `1`)
+- `1-1-1` and `1-1-2` are siblings (same parent `1-1`)
+- `1-1-1` is a child of `1-1`, which is a child of `1`
 
 **Gap Filling**:
-If you have `1a1` and `1a3`, creating a new sibling will create `1a2` (fills the gap) before creating `1a4`.
+If you have `1-1-1` and `1-1-3`, creating a new sibling will create `1-1-2` (fills the gap) before creating `1-1-4`.
 
 ## Troubleshooting
 

@@ -43,16 +43,16 @@ zournal.nvim is a Neovim plugin that combines journaling capabilities with Zette
 ### 2.2 Zettelkasten System
 
 #### Zettelkasten ID (zid) Structure
-- Format: Alternating number/character sequence
-- Examples: `1a`, `1b`, `1a3`, `1b3c5a100z`
-- Pattern: `number → character → number → character → ...`
+- Format: Dash-separated numbers
+- Examples: `1`, `1-1`, `1-1-2`, `1-1-2-2`
+- Pattern: Numbers separated by dashes
 - Grows dynamically as needed
 
 #### Relationships
-- **Siblings**: Share same parent prefix, different last character
-  - Example: `1a` and `1b` are siblings, `1a2` is sibling of `1a3`
-- **Parent/Child**: Child ID extends parent ID
-  - Example: `1a` is parent of `1a3`, which is parent of `1a3c`
+- **Siblings**: Share same parent prefix, different last number
+  - Example: `1-1` and `1-2` are siblings, `1-1-2` is sibling of `1-1-3`
+- **Parent/Child**: Child ID extends parent ID with dash and number
+  - Example: `1-1` is parent of `1-1-2`, which is parent of `1-1-2-3`
 - **Root notes**: Single number (e.g., `1`, `2`, `3`)
 
 #### Storage
@@ -65,7 +65,7 @@ zournal.nvim is a Neovim plugin that combines journaling capabilities with Zette
   ```yaml
   ---
   created: 2025-01-16
-  zid: 1a3
+  zid: 1-1-2
   ---
   ```
 
