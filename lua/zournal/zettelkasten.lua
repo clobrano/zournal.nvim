@@ -9,7 +9,7 @@ local frontmatter = require("zournal.frontmatter")
 -- ZID Validation (7.1)
 -- ============================================================================
 
---- Check if zid is valid (alternating number/letter pattern)
+--- Check if zid is valid (numbers separated by dashes)
 ---@param zid string
 ---@return boolean
 function M.is_valid_zid(zid)
@@ -17,30 +17,23 @@ function M.is_valid_zid(zid)
     return false
   end
 
-  -- Pattern: starts with digit, then alternates between letters and digits
-  -- Examples: 1, 1a, 1a2, 1a2b, 1a2b3
-  -- Must start with a number
-  if not zid:match("^%d") then
+  -- Pattern: numbers separated by dashes
+  -- Examples: 1, 1-1, 1-1-2, 1-1-2-2
+  -- Must be all digits and dashes, start and end with digit
+  if not zid:match("^%d+[%-0-9]*$") then
     return false
   end
 
-  -- Check alternating pattern: digit -> letter -> digit -> letter...
-  local expecting_letter = true
-  local i = 2
-  while i <= #zid do
-    local char = zid:sub(i, i)
-    if expecting_letter then
-      if not char:match("%a") then
-        return false
-      end
-      expecting_letter = false
-    else
-      if not char:match("%d") then
-        return false
-      end
-      expecting_letter = true
+  -- Cannot have consecutive dashes or start/end with dash
+  if zid:match("%-%-") or zid:match("^%-") or zid:match("%-$") then
+    return false
+  end
+
+  -- Each segment must be a valid number (no leading zeros except for "0")
+  for segment in zid:gmatch("[^%-]+") do
+    if segment:match("^0%d") then -- leading zero on multi-digit number
+      return false
     end
-    i = i + 1
   end
 
   return true
@@ -58,18 +51,18 @@ function M.get_parent_zid(zid)
     return nil
   end
 
-  -- If root (single number), no parent
-  if zid:match("^%d+$") then
+  -- If root (no dashes), no parent
+  if not zid:match("%-") then
     return nil
   end
 
-  -- Remove last segment (either a letter or a number)
-  -- Examples: 1a3 -> 1a, 1a -> 1, 1a3c -> 1a3
-  local parent = zid:sub(1, -2)
+  -- Remove last segment after last dash
+  -- Examples: 1-1-2 -> 1-1, 1-1 -> 1, 1-1-2-2 -> 1-1-2
+  local parent = zid:match("^(.+)%-%d+$")
   return parent
 end
 
---- Get root zid (first number)
+--- Get root zid (first number before first dash)
 ---@param zid string
 ---@return string|nil root_zid
 function M.get_root_zid(zid)
@@ -77,7 +70,7 @@ function M.get_root_zid(zid)
     return nil
   end
 
-  -- Extract leading digits
+  -- Extract first segment before first dash (or entire zid if no dash)
   local root = zid:match("^(%d+)")
   return root
 end
@@ -88,29 +81,15 @@ end
 
 --- Parse zid segments into a table
 ---@param zid string|number
----@return table segments List of segments
+---@return table segments List of number segments
 local function parse_segments(zid)
   -- Convert to string if needed
   zid = tostring(zid)
 
   local segments = {}
-  local i = 1
-  while i <= #zid do
-    local char = zid:sub(i, i)
-    if char:match("%d") then
-      -- Collect all consecutive digits
-      local num = ""
-      while i <= #zid and zid:sub(i, i):match("%d") do
-        num = num .. zid:sub(i, i)
-        i = i + 1
-      end
-      table.insert(segments, tonumber(num))
-    elseif char:match("%a") then
-      table.insert(segments, char)
-      i = i + 1
-    else
-      i = i + 1
-    end
+  -- Split by dashes and convert each segment to number
+  for segment in zid:gmatch("[^%-]+") do
+    table.insert(segments, tonumber(segment))
   end
   return segments
 end
@@ -119,11 +98,11 @@ end
 ---@param segments table
 ---@return string
 local function build_zid(segments)
-  local result = ""
+  local result = {}
   for _, seg in ipairs(segments) do
-    result = result .. tostring(seg)
+    table.insert(result, tostring(seg))
   end
-  return result
+  return table.concat(result, "-")
 end
 
 --- Get next child zid
@@ -134,60 +113,30 @@ function M.get_next_child_zid(parent_zid, existing_children)
   existing_children = existing_children or {}
 
   local segments = parse_segments(parent_zid)
-  local last_segment = segments[#segments]
 
-  -- If parent ends in number, append next letter (starting from 'a')
-  if type(last_segment) == "number" then
-    -- Find used letters at this level
-    local used_letters = {}
-    for _, child in ipairs(existing_children) do
-      local child_segments = parse_segments(child)
-      if #child_segments == #segments + 1 then
-        local child_letter = child_segments[#child_segments]
-        if type(child_letter) == "string" then
-          used_letters[child_letter] = true
-        end
+  -- Find used numbers at this level
+  local used_numbers = {}
+  for _, child in ipairs(existing_children) do
+    local child_segments = parse_segments(child)
+    if #child_segments == #segments + 1 then
+      local child_num = child_segments[#child_segments]
+      if type(child_num) == "number" then
+        used_numbers[child_num] = true
       end
     end
-
-    -- Find first available letter (fill gaps)
-    for i = string.byte("a"), string.byte("z") do
-      local letter = string.char(i)
-      if not used_letters[letter] then
-        table.insert(segments, letter)
-        return build_zid(segments)
-      end
-    end
-
-    -- If all letters used, just append 'a' (shouldn't happen in practice)
-    table.insert(segments, "a")
-    return build_zid(segments)
-  else
-    -- If parent ends in letter, append next number (starting from 1)
-    -- Find used numbers at this level
-    local used_numbers = {}
-    for _, child in ipairs(existing_children) do
-      local child_segments = parse_segments(child)
-      if #child_segments == #segments + 1 then
-        local child_num = child_segments[#child_segments]
-        if type(child_num) == "number" then
-          used_numbers[child_num] = true
-        end
-      end
-    end
-
-    -- Find first available number (fill gaps)
-    for i = 1, 1000 do
-      if not used_numbers[i] then
-        table.insert(segments, i)
-        return build_zid(segments)
-      end
-    end
-
-    -- Fallback
-    table.insert(segments, 1)
-    return build_zid(segments)
   end
+
+  -- Find first available number (fill gaps)
+  for i = 1, 1000 do
+    if not used_numbers[i] then
+      table.insert(segments, i)
+      return build_zid(segments)
+    end
+  end
+
+  -- Fallback
+  table.insert(segments, 1)
+  return build_zid(segments)
 end
 
 --- Get next sibling zid
@@ -200,57 +149,29 @@ function M.get_next_sibling_zid(zid, existing_siblings)
   local segments = parse_segments(zid)
   local last_segment = segments[#segments]
 
-  if type(last_segment) == "string" then
-    -- If ends in letter, increment letter
-    local used_letters = {}
-    for _, sibling in ipairs(existing_siblings) do
-      local sib_segments = parse_segments(sibling)
-      if #sib_segments == #segments then
-        local sib_letter = sib_segments[#sib_segments]
-        if type(sib_letter) == "string" then
-          used_letters[sib_letter] = true
-        end
+  -- All segments are numbers, increment last number
+  local used_numbers = {}
+  for _, sibling in ipairs(existing_siblings) do
+    local sib_segments = parse_segments(sibling)
+    if #sib_segments == #segments then
+      local sib_num = sib_segments[#sib_segments]
+      if type(sib_num) == "number" then
+        used_numbers[sib_num] = true
       end
     end
-
-    -- Find first available letter after current (or fill gaps)
-    local current_byte = string.byte(last_segment)
-    for i = string.byte("a"), string.byte("z") do
-      local letter = string.char(i)
-      if i > current_byte and not used_letters[letter] then
-        segments[#segments] = letter
-        return build_zid(segments)
-      end
-    end
-
-    -- If no available letter found, increment current
-    segments[#segments] = string.char(current_byte + 1)
-    return build_zid(segments)
-  else
-    -- If ends in number, increment number
-    local used_numbers = {}
-    for _, sibling in ipairs(existing_siblings) do
-      local sib_segments = parse_segments(sibling)
-      if #sib_segments == #segments then
-        local sib_num = sib_segments[#sib_segments]
-        if type(sib_num) == "number" then
-          used_numbers[sib_num] = true
-        end
-      end
-    end
-
-    -- Find first available number after current (or fill gaps)
-    for i = 1, 1000 do
-      if i > last_segment and not used_numbers[i] then
-        segments[#segments] = i
-        return build_zid(segments)
-      end
-    end
-
-    -- Fallback: increment current
-    segments[#segments] = last_segment + 1
-    return build_zid(segments)
   end
+
+  -- Find first available number after current (or fill gaps)
+  for i = 1, 1000 do
+    if i > last_segment and not used_numbers[i] then
+      segments[#segments] = i
+      return build_zid(segments)
+    end
+  end
+
+  -- Fallback: increment current
+  segments[#segments] = last_segment + 1
+  return build_zid(segments)
 end
 
 -- ============================================================================
