@@ -73,6 +73,31 @@ local function find_backlinks_in_file(source_filepath, target_filepath)
   return results
 end
 
+-- Resolve the directory to search for backlinks.
+-- Uses the workspace root_dir when the current file lives inside it,
+-- and falls back to the current file's parent directory otherwise.
+local function resolve_search_dir(current_file)
+  local conf_val = config.get()
+  local root_dir = conf_val.root_dir and vim.fn.expand(conf_val.root_dir) or nil
+
+  -- Use root_dir only when it exists and the current file is inside it
+  if root_dir and root_dir ~= "" then
+    local Path = require("plenary.path")
+    if Path:new(root_dir):is_dir() then
+      local abs_current = vim.fn.fnamemodify(current_file, ":p")
+      local abs_root = vim.fn.fnamemodify(root_dir, ":p")
+      -- Ensure trailing slash for prefix comparison
+      if not abs_root:match("/$") then abs_root = abs_root .. "/" end
+      if abs_current:sub(1, #abs_root) == abs_root then
+        return root_dir
+      end
+    end
+  end
+
+  -- Fallback: parent directory of the current file
+  return vim.fn.fnamemodify(current_file, ":h")
+end
+
 -- Pick all files that link to the current file
 function M.pick_backlinks()
   local current_file = vim.api.nvim_buf_get_name(0)
@@ -82,14 +107,13 @@ function M.pick_backlinks()
     return
   end
 
-  local conf_val = config.get()
-  local root_dir = vim.fn.expand(conf_val.root_dir)
+  local search_dir = resolve_search_dir(current_file)
 
-  -- Find all markdown files in root_dir
-  local all_files = utils.find_files_with_pattern(root_dir, "*.md")
+  -- Find all markdown files recursively under search_dir
+  local all_files = utils.find_files_with_pattern(search_dir, "*.md")
 
   if #all_files == 0 then
-    vim.notify("No markdown files found in workspace", vim.log.levels.WARN)
+    vim.notify("No markdown files found under: " .. search_dir, vim.log.levels.WARN)
     return
   end
 
