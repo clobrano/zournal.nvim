@@ -91,10 +91,13 @@ function M.resolve_link(link_text, current_file_path, link_type)
     }
 
     for _, candidate in ipairs(candidates) do
-      -- Search in root directory
+      -- Search in root directory, then require an exact basename match so that
+      -- e.g. [[Role]] does not accidentally open ClusterRole.md
       local files = utils.find_files_with_pattern(root_dir, candidate)
-      if #files > 0 then
-        return files[1] -- Return first match
+      for _, file in ipairs(files) do
+        if vim.fn.fnamemodify(file, ":t:r") == link_text then
+          return file
+        end
       end
     end
 
