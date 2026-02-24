@@ -99,20 +99,9 @@ function M.resolve_link(link_text, current_file_path, link_type)
     end
 
     -- If not found, construct path for the new file.
-    -- Use new_notes_dir if configured, otherwise fall back to root_dir.
-    local new_notes_dir = conf.new_notes_dir or ""
-    local base_dir
-    if new_notes_dir ~= "" then
-      if new_notes_dir:match("^/") then
-        -- Absolute path
-        base_dir = new_notes_dir
-      else
-        -- Relative to root_dir
-        base_dir = utils.join_path(root_dir, new_notes_dir)
-      end
-    else
-      base_dir = root_dir
-    end
+    -- Place new notes in inbox_dir (same location as ZournalInbox creates notes).
+    local inbox_dir = conf.inbox_dir or ""
+    local base_dir = inbox_dir ~= "" and utils.join_path(root_dir, inbox_dir) or root_dir
     local expected = utils.join_path(base_dir, link_text)
     if not expected:match("%.md$") then
       expected = expected .. ".md"
