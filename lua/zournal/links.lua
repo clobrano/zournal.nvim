@@ -91,15 +91,21 @@ function M.resolve_link(link_text, current_file_path, link_type)
     }
 
     for _, candidate in ipairs(candidates) do
-      -- Search in root directory
+      -- Search in root directory, then require an exact basename match so that
+      -- e.g. [[Role]] does not accidentally open ClusterRole.md
       local files = utils.find_files_with_pattern(root_dir, candidate)
-      if #files > 0 then
-        return files[1] -- Return first match
+      for _, file in ipairs(files) do
+        if vim.fn.fnamemodify(file, ":t:r") == link_text then
+          return file
+        end
       end
     end
 
-    -- If not found, construct expected path
-    local expected = utils.join_path(root_dir, link_text)
+    -- If not found, construct path for the new file.
+    -- Place new notes in inbox_dir (same location as ZournalInbox creates notes).
+    local inbox_dir = conf.inbox_dir or ""
+    local base_dir = inbox_dir ~= "" and utils.join_path(root_dir, inbox_dir) or root_dir
+    local expected = utils.join_path(base_dir, link_text)
     if not expected:match("%.md$") then
       expected = expected .. ".md"
     end
@@ -161,6 +167,7 @@ function M.get_link_under_cursor()
 end
 
 -- Follow link under cursor
+-- If the target file does not exist it will be created (directory is made, buffer is opened).
 function M.follow_link()
   local link = M.get_link_under_cursor()
 
@@ -174,7 +181,11 @@ function M.follow_link()
     return
   end
 
-  -- Open the file
+  -- Ensure the parent directory exists so the file can be saved after creation
+  local parent_dir = vim.fn.fnamemodify(link.path, ":h")
+  utils.ensure_dir(parent_dir)
+
+  -- Open the file (vim will create a new buffer for files that don't exist yet)
   utils.open_file_in_buffer(link.path)
 end
 

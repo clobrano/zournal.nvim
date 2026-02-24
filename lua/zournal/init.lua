@@ -16,6 +16,28 @@ M.telescope = {
   links = require('zournal.telescope.links'),
 }
 
+-- Setup <CR> in normal mode for markdown buffers so that pressing Enter on a
+-- wikilink or markdown link follows (or creates) the target file.  When the
+-- cursor is not on any link the default <CR> behaviour is preserved.
+local function setup_link_keymaps()
+  vim.api.nvim_create_autocmd('FileType', {
+    group = vim.api.nvim_create_augroup('ZournalLinkKeymaps', { clear = true }),
+    pattern = 'markdown',
+    callback = function(args)
+      vim.keymap.set('n', '<CR>', function()
+        local link = M.links.get_link_under_cursor()
+        if link then
+          M.links.follow_link()
+        else
+          -- Fall through to built-in <CR> (move to next line) without remapping
+          local enter = vim.api.nvim_replace_termcodes('<CR>', true, true, true)
+          vim.api.nvim_feedkeys(enter, 'n', false)
+        end
+      end, { buffer = args.buf, desc = 'Follow link under cursor', noremap = true })
+    end,
+  })
+end
+
 -- Setup workspace detection autocmds
 local function setup_workspace_detection()
   local group = vim.api.nvim_create_augroup('ZournalWorkspaceDetection', { clear = true })
@@ -66,6 +88,9 @@ function M.setup(opts)
 
   -- Setup workspace detection
   setup_workspace_detection()
+
+  -- Setup <CR> keymap for link navigation in markdown files
+  setup_link_keymaps()
 end
 
 return M
