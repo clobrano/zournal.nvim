@@ -110,7 +110,7 @@ function M.pick_backlinks()
   local search_dir = resolve_search_dir(current_file)
 
   -- Find all markdown files recursively under search_dir
-  local all_files = utils.find_files_with_pattern(search_dir, "*.md")
+  local all_files = utils.find_files_with_pattern(search_dir, "%.md$")
 
   if #all_files == 0 then
     vim.notify("No markdown files found under: " .. search_dir, vim.log.levels.WARN)
