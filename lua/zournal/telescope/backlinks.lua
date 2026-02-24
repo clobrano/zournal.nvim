@@ -153,11 +153,7 @@ function M.pick_backlinks()
     finder = finders.new_table({
       results = entries,
       entry_maker = function(entry)
-        local display = string.format("%s:%d  %s",
-          entry.source_name,
-          entry.line_num,
-          entry.line
-        )
+        local display = string.format("%s:%d", entry.source_name, entry.line_num)
 
         return {
           value = entry,
