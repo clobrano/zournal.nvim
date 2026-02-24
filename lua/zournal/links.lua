@@ -98,8 +98,22 @@ function M.resolve_link(link_text, current_file_path, link_type)
       end
     end
 
-    -- If not found, construct expected path
-    local expected = utils.join_path(root_dir, link_text)
+    -- If not found, construct path for the new file.
+    -- Use new_notes_dir if configured, otherwise fall back to root_dir.
+    local new_notes_dir = conf.new_notes_dir or ""
+    local base_dir
+    if new_notes_dir ~= "" then
+      if new_notes_dir:match("^/") then
+        -- Absolute path
+        base_dir = new_notes_dir
+      else
+        -- Relative to root_dir
+        base_dir = utils.join_path(root_dir, new_notes_dir)
+      end
+    else
+      base_dir = root_dir
+    end
+    local expected = utils.join_path(base_dir, link_text)
     if not expected:match("%.md$") then
       expected = expected .. ".md"
     end
@@ -161,6 +175,7 @@ function M.get_link_under_cursor()
 end
 
 -- Follow link under cursor
+-- If the target file does not exist it will be created (directory is made, buffer is opened).
 function M.follow_link()
   local link = M.get_link_under_cursor()
 
@@ -174,7 +189,11 @@ function M.follow_link()
     return
   end
 
-  -- Open the file
+  -- Ensure the parent directory exists so the file can be saved after creation
+  local parent_dir = vim.fn.fnamemodify(link.path, ":h")
+  utils.ensure_dir(parent_dir)
+
+  -- Open the file (vim will create a new buffer for files that don't exist yet)
   utils.open_file_in_buffer(link.path)
 end
 

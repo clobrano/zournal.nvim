@@ -40,6 +40,10 @@ local workspace_defaults = {
   -- "iso8601": Week containing first Thursday of the year is week 1 (standard %V)
   -- "gregorian": Week containing January 1st is week 1
   week_numbering_system = "iso8601",
+
+  -- Default directory for new notes created by following a wikilink that doesn't exist yet
+  -- Can be relative to root_dir or absolute. Empty string means use root_dir.
+  new_notes_dir = "",
 }
 
 -- All configured workspaces (name -> config)
@@ -85,6 +89,7 @@ local function expand_workspace_paths(workspace_config)
   expanded.weekly_template = expand_path(expanded.weekly_template)
   expanded.monthly_template = expand_path(expanded.monthly_template)
   expanded.inbox_template = expand_path(expanded.inbox_template)
+  expanded.new_notes_dir = expand_path(expanded.new_notes_dir)
   return expanded
 end
 
