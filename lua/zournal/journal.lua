@@ -268,9 +268,15 @@ function M.jump_to_date(date_string)
     return utils.open_file_in_buffer(monthly_path)
   end
 
-  -- No journal found for this date
-  vim.notify("No journal found for date: " .. date_string, vim.log.levels.WARN)
-  return false
+  -- No journal found - create a new daily journal for this date
+  local date = utils.format_date("%Y-%m-%d", timestamp)
+
+  utils.ensure_dir(journal_dir)
+
+  local content = template.apply_daily_template(cfg.daily_template, { date = date })
+  utils.write_file(daily_path, content)
+
+  return utils.open_file_in_buffer(daily_path)
 end
 
 return M
