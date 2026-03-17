@@ -214,10 +214,9 @@ function M.create_inbox_note()
     -- Create title line
     local title_line = "# " .. title
 
-    -- Create frontmatter with zid and creation date
+    -- Create frontmatter with zid (Obsidian format: frontmatter before title)
     frontmatter.update_frontmatter(file_path, {
       zid = next_zid,
-      created = os.date("%Y-%m-%d"),
     }, title_line)
 
     vim.notify("Created inbox note with zid: " .. next_zid .. " - " .. filename, vim.log.levels.INFO)

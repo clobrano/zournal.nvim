@@ -64,9 +64,9 @@ end
 
 --- Parse frontmatter from file content
 --- Supports multiple formats:
---- 1. After first header with backticks (current): # Title\n```\nkey: value\n```\nContent
---- 2. After first header with dashes (legacy): # Title\n\n---\nkey: value\n---\nContent
---- 3. At file start (legacy): ---\nkey: value\n---\n# Title\nContent
+--- 1. At file start with dashes (Obsidian): ---\nkey: value\n---\n# Title\nContent
+--- 2. After first header with backticks (legacy): # Title\n```\nkey: value\n```\nContent
+--- 3. After first header with dashes (legacy): # Title\n\n---\nkey: value\n---\nContent
 ---@param content string File content
 ---@return table result Table with 'frontmatter', 'body', and 'title' keys
 function M.parse_frontmatter(content)
@@ -74,41 +74,41 @@ function M.parse_frontmatter(content)
     return { frontmatter = {}, body = "", title = "" }
   end
 
-  -- Try to match frontmatter after first header (new format with backticks, no extra newline)
-  -- Pattern: # Title\n```\nYAML\n```\nBody
-  local title, yaml_content, body = content:match("^(#[^\n]+)\n```\n(.-)\n```\n(.*)$")
+  -- Try to match frontmatter at file start (Obsidian format)
+  -- Pattern: ---\nYAML\n---\nBody (which may include title)
+  local yaml_content, body = content:match("^%-%-%-\n(.-)%-%-%-\n(.*)$")
 
-  if title and yaml_content then
+  if yaml_content and body then
+    -- Extract title from body if present (with optional whitespace)
+    local title = body:match("^%s*(#[^\n]+)")
     return {
       frontmatter = parse_yaml(yaml_content),
       body = body,
+      title = title or "",
+    }
+  end
+
+  -- Try to match frontmatter after first header (legacy format with backticks, no extra newline)
+  -- Pattern: # Title\n```\nYAML\n```\nBody
+  local title, yaml_content2, body2 = content:match("^(#[^\n]+)\n```\n(.-)\n```\n(.*)$")
+
+  if title and yaml_content2 then
+    return {
+      frontmatter = parse_yaml(yaml_content2),
+      body = body2,
       title = title,
     }
   end
 
   -- Try to match frontmatter after first header (legacy format with dashes)
   -- Pattern: # Title\n\n---\nYAML\n---\nBody
-  title, yaml_content, body = content:match("^(#[^\n]+)\n+%-%-%-\n(.-)%-%-%-\n(.*)$")
+  title, yaml_content2, body2 = content:match("^(#[^\n]+)\n+%-%-%-\n(.-)%-%-%-\n(.*)$")
 
-  if title and yaml_content then
+  if title and yaml_content2 then
     return {
-      frontmatter = parse_yaml(yaml_content),
-      body = body,
+      frontmatter = parse_yaml(yaml_content2),
+      body = body2,
       title = title,
-    }
-  end
-
-  -- Try to match frontmatter at file start (legacy format)
-  -- Pattern: ---\nYAML\n---\nBody (which may include title)
-  yaml_content, body = content:match("^%-%-%-\n(.-)%-%-%-\n(.*)$")
-
-  if yaml_content and body then
-    -- Extract title from body if present (with optional whitespace)
-    local first_line = body:match("^%s*(#[^\n]+)")
-    return {
-      frontmatter = parse_yaml(yaml_content),
-      body = body,
-      title = first_line or "",
     }
   end
 
@@ -122,7 +122,7 @@ function M.parse_frontmatter(content)
 end
 
 --- Serialize frontmatter data to YAML string with delimiters
---- If title is provided, places frontmatter after the title
+--- Uses Obsidian-compatible format: frontmatter before the title with --- delimiters
 ---@param data table Frontmatter data
 ---@param title string|nil Optional title (e.g., "# My Note")
 ---@return string
@@ -135,13 +135,12 @@ function M.serialize_frontmatter(data, title)
   end
 
   local yaml = serialize_yaml(data)
-  local frontmatter_block = "```\n" .. yaml .. "\n```\n"
+  local frontmatter_block = "---\n" .. yaml .. "\n---\n"
 
   if title and title ~= "" then
-    -- Place frontmatter after title (no extra newline)
-    return title .. "\n" .. frontmatter_block
+    -- Obsidian format: frontmatter before title
+    return frontmatter_block .. title .. "\n"
   else
-    -- No title, return frontmatter at start (legacy behavior)
     return frontmatter_block
   end
 end
@@ -151,7 +150,7 @@ end
 -- ============================================================================
 
 --- Update frontmatter in a file
---- Places frontmatter after first header if title exists
+--- Places frontmatter before the title in Obsidian-compatible format
 ---@param file_path string
 ---@param updates table Fields to update in frontmatter
 ---@param title string|nil Optional title to use if creating new file
