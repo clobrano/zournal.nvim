@@ -274,12 +274,10 @@ Example template (`daily_template.md`):
 
 Example Zettelkasten note (manually created root note):
 ```markdown
-# My Note Title
-
 ---
 zid: 1
-created: {{date}}
 ---
+# My Note Title
 
 Content here...
 ```
@@ -376,19 +374,17 @@ Content here...
 
 ### Creating Zettelkasten Notes
 
-1. Create a root note manually with frontmatter after the title:
+1. Create a root note manually with Obsidian-compatible frontmatter:
    ```markdown
-   # My First Note
-
    ---
    zid: 1
-   created: 2024-01-15
    ---
+   # My First Note
 
    Content goes here...
    ```
 
-   **Note**: Zettelkasten notes have frontmatter AFTER the title. Journal notes have NO frontmatter.
+   **Note**: Frontmatter uses `---` delimiters and is placed BEFORE the title (Obsidian-compatible). Journal notes have NO frontmatter.
 
 2. Create child notes:
    ```vim
@@ -530,19 +526,17 @@ If you have `1-1-1` and `1-1-3`, creating a new sibling will create `1-1-2` (fil
 
 This error appears when you try to use Zettelkasten commands (NewChild, NewSibling, Relations) on a file without a zid.
 
-**Solution**: Add YAML frontmatter to your file AFTER the title:
+**Solution**: Add YAML frontmatter to your file BEFORE the title:
 ```markdown
-# My Note Title
-
 ---
 zid: 1
-created: 2024-01-15
 ---
+# My Note Title
 
 Content here...
 ```
 
-**Important**: Frontmatter must come AFTER the first header (title) in Zettelkasten notes. Journal notes should NOT have frontmatter at all.
+**Important**: Frontmatter uses `---` delimiters and must come BEFORE the title (Obsidian-compatible format). Journal notes should NOT have frontmatter at all.
 
 ### Links not resolving
 

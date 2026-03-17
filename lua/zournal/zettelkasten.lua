@@ -392,10 +392,9 @@ function M.create_child_note()
     body_content = selected_text
   end
 
-  -- Create frontmatter with title, which places it after the title
+  -- Create frontmatter with title (Obsidian format: frontmatter before title)
   frontmatter.update_frontmatter(file_path, {
     zid = new_zid,
-    created = os.date("%Y-%m-%d"),
   }, title_line)
 
   -- Append body content to file (after frontmatter)
@@ -480,10 +479,9 @@ function M.create_sibling_note()
     body_content = selected_text
   end
 
-  -- Create frontmatter with title, which places it after the title
+  -- Create frontmatter with title (Obsidian format: frontmatter before title)
   frontmatter.update_frontmatter(file_path, {
     zid = new_zid,
-    created = os.date("%Y-%m-%d"),
   }, title_line)
 
   -- Append body content to file (after frontmatter)
