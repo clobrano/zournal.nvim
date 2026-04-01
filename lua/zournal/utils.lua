@@ -106,6 +106,22 @@ function M.format_date(format_string, date)
     format_string = format_string:gsub("%%V", week_str)
     format_string = format_string:gsub("%%W", week_str)
     format_string = format_string:gsub("%%U", week_str)
+
+    -- Use the Monday of the current week so that date components (%Y, %m, %d)
+    -- remain consistent for the entire week (fixes month boundary issues)
+    local date_info = os.date("*t", date)
+    -- os.date("*t").wday: 1=Sunday, 2=Monday, ..., 7=Saturday
+    local day_of_week = date_info.wday
+    -- Calculate offset to Monday: Monday(wday=2) -> 0, Tuesday(3) -> 1, ..., Sunday(1) -> 6
+    local days_since_monday = (day_of_week - 2) % 7
+    date = os.time({
+      year = date_info.year,
+      month = date_info.month,
+      day = date_info.day - days_since_monday,
+      hour = date_info.hour,
+      min = date_info.min,
+      sec = date_info.sec,
+    })
   end
 
   return os.date(format_string, date)
