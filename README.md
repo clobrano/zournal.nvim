@@ -177,6 +177,7 @@ Each workspace supports the following options:
 | `reference_sign` | `"Z"` | Sign column indicator for reference tags |
 | `virtual_text_enabled` | `false` | Enable virtual text showing original tag content for references |
 | `virtual_text_format` | `'→ "%s"'` | Format string for virtual text (`%s` = original line content) |
+| `virtual_text_max_references` | `3` | Max tag reference previews rendered per buffer (`0` = unlimited). Extras are skipped and a one-time notification tells you how many were hidden, keeping large notes fast |
 | `tag_cache_ttl` | `300` | Tag cache time-to-live in seconds (5 minutes) |
 | `week_numbering_system` | `"iso8601"` | Week numbering system: `"iso8601"` (week containing first Thursday) or `"gregorian"` (week containing Jan 1). Case-insensitive. |
 

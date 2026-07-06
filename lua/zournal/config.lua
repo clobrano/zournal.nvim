@@ -32,6 +32,7 @@ local workspace_defaults = {
   virtual_text_enabled = false,  -- Enable virtual text showing original tag content
   virtual_text_format = '→ "%s"',  -- Format string for virtual text (%s = original line content)
   virtual_text_max_length = 80,  -- Maximum length for EOL virtual text (truncated with ... if longer)
+  virtual_text_max_references = 3,  -- Max tag references rendered per buffer (0 = unlimited); extras are skipped with a notification
 
   -- Tag cache settings
   tag_cache_ttl = 300,  -- Cache time-to-live in seconds (5 minutes)

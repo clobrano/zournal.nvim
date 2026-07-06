@@ -11,6 +11,33 @@ local update_timer = nil
 -- Key: bufnr, Value: changedtick
 local last_changedtick = {}
 
+-- Track the last "N references hidden" count we notified about per buffer,
+-- so we only notify when that count actually changes (avoids spamming the
+-- user on every debounced update while a buffer has excess references).
+local last_notified_hidden_count = {}
+
+-- Notify (once per distinct hidden count) that some tag references were
+-- skipped to keep virtual text rendering fast.
+local function notify_hidden_references(bufnr, hidden_count, max_references)
+  if hidden_count <= 0 then
+    last_notified_hidden_count[bufnr] = nil
+    return
+  end
+
+  if last_notified_hidden_count[bufnr] == hidden_count then
+    return
+  end
+  last_notified_hidden_count[bufnr] = hidden_count
+
+  vim.notify(
+    string.format(
+      "zournal: showing first %d tag reference previews, %d more hidden (see 'virtual_text_max_references')",
+      max_references, hidden_count
+    ),
+    vim.log.levels.INFO
+  )
+end
+
 -- Initialize namespace
 local function init_namespace()
   if not ns_id then
@@ -115,8 +142,18 @@ function M.update_virtual_text_all()
       -- Cache window width to avoid repeated API calls
       local win_width = vim.api.nvim_win_get_width(0)
 
-      -- Add virtual text for each reference
+      -- Cap how many references get the (expensive) lookup + render per
+      -- buffer, so files with many references don't slow down the UI.
+      local max_references = config.virtual_text_max_references or 0
+      local processed_count = 0
+
+      -- Add virtual text for each reference, up to the configured max
       for _, ref in ipairs(file_refs) do
+        if max_references > 0 and processed_count >= max_references then
+          break
+        end
+        processed_count = processed_count + 1
+
         local original = find_original_content(ref.uuid)
 
         if original and original.content ~= "" then
@@ -131,6 +168,10 @@ function M.update_virtual_text_all()
             virt_lines = wrapped_lines,
           })
         end
+      end
+
+      if max_references > 0 then
+        notify_hidden_references(bufnr, #file_refs - processed_count, max_references)
       end
     end
     ::continue::
@@ -173,27 +214,43 @@ function M.update_virtual_text(bufnr)
   -- Cache window width to avoid repeated API calls
   local win_width = vim.api.nvim_win_get_width(0)
 
+  -- Cap how many references get the (expensive) lookup + render per
+  -- buffer, so notes with many references don't slow down the UI.
+  local max_references = config.virtual_text_max_references or 0
+  local processed_count = 0
+  local total_refs = 0
+
   for line_num, line_content in ipairs(lines) do
     -- Look for reference tags {zref<uuid>}
     local uuid = line_content:match("{zref([0-9a-f%-]+)}")
 
     if uuid then
-      -- Find the original tag content (uses cache)
-      local original = find_original_content(uuid)
+      total_refs = total_refs + 1
 
-      if original and original.content ~= "" then
-        -- Format the virtual text (no truncation)
-        local content = original.content
-        local virt_text = string.format(config.virtual_text_format, content)
+      if max_references <= 0 or processed_count < max_references then
+        processed_count = processed_count + 1
 
-        -- Use virt_lines for all lines (wrapped)
-        local wrapped_lines = wrap_text_for_virt_lines(virt_text, win_width - 4, "ZournalVirtualText")
+        -- Find the original tag content (uses cache)
+        local original = find_original_content(uuid)
 
-        vim.api.nvim_buf_set_extmark(bufnr, ns, line_num - 1, 0, {
-          virt_lines = wrapped_lines,
-        })
+        if original and original.content ~= "" then
+          -- Format the virtual text (no truncation)
+          local content = original.content
+          local virt_text = string.format(config.virtual_text_format, content)
+
+          -- Use virt_lines for all lines (wrapped)
+          local wrapped_lines = wrap_text_for_virt_lines(virt_text, win_width - 4, "ZournalVirtualText")
+
+          vim.api.nvim_buf_set_extmark(bufnr, ns, line_num - 1, 0, {
+            virt_lines = wrapped_lines,
+          })
+        end
       end
     end
+  end
+
+  if max_references > 0 then
+    notify_hidden_references(bufnr, total_refs - processed_count, max_references)
   end
 end
 
@@ -275,6 +332,7 @@ function M.setup_virtual_text()
     callback = function(args)
       local bufnr = args.buf
       last_changedtick[bufnr] = nil
+      last_notified_hidden_count[bufnr] = nil
     end,
   })
 end
